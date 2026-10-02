@@ -1,7 +1,7 @@
 # Проект «Большое путешествие»
 
 * Студент: [Динара Андрианова](https://up.htmlacademy.ru/ecmascript-individual/3/user/90549).
-* Наставник: `Неизвестно`.
+* Наставник: [Дмитрий Атаманов](https://htmlacademy.ru/profile/atamanov_dmitriy).
 
 ---
 
