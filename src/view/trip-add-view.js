@@ -2,8 +2,7 @@ import { createElement } from '../render.js';
 
 function createTripAddTemplate() {
   return (
-    `<li class="trip-events__item">
-      <form class="event event--edit" action="#" method="post">
+    `<form class="event event--edit" action="#" method="post">
         <header class="event__header">
           <div class="event__type-wrapper">
             <label class="event__type  event__type-btn" for="event-type-toggle-1">
@@ -98,8 +97,7 @@ function createTripAddTemplate() {
         <section class="event__details">
 
         </section>
-      </form>
-    </li>`
+      </form>`
   );
 }
 
