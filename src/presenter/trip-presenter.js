@@ -1,15 +1,12 @@
 import { render } from '../render.js';
 import SortView from '../view/sort-view.js';
 import TripListView from '../view/trip-list-view.js';
-import TripItemView from '../view/trip-item-view.js';
-import TripAddView from '../view/trip-add-view.js';
 import TripOfferView from '../view/trip-offer-view.js';
 import TripDestinationView from '../view/trip-destination-view.js';
-import TripEditView from '../view/trip-edit-view.js';
+import TripFormView from '../view/trip-form-view.js';
 import TripView from '../view/trip-view.js';
 
 const COUNT_TRIP = 3;
-
 export default class TripPresenter {
   tripListComponent = new TripListView();
 
@@ -17,26 +14,22 @@ export default class TripPresenter {
     this.tripContainet = tripContainet;
   }
 
-  createTripItem(template, option = true) {
-    const tripItemComponent = new TripItemView();
+  createTripFromItem(template) {
+    const tripItemComponent = template;
     render(tripItemComponent, this.tripListComponent.getElement());
-    render(template, tripItemComponent.getElement());
-    if (option) {
-      render(new TripOfferView(), template.getElement());
-      render(new TripDestinationView(), template.getElement());
-    }
+    render(new TripOfferView(), tripItemComponent.getElement().querySelector('.event__details'));
+    render(new TripDestinationView(), tripItemComponent.getElement().querySelector('.event__details'));
     return tripItemComponent;
   }
 
   init() {
     render(new SortView(), this.tripContainet);
     render(this.tripListComponent, this.tripContainet);
-
-    this.createTripItem(new TripAddView());
-    this.createTripItem(new TripEditView());
+    this.createTripFromItem(new TripFormView({ isEdit: false }));
+    this.createTripFromItem(new TripFormView({ isEdit: true }));
 
     for (let i = 0; i < COUNT_TRIP; i++) {
-      this.createTripItem(new TripView(), false);
+      render(new TripView(), this.tripListComponent.getElement());
     }
   }
 }

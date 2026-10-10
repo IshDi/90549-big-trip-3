@@ -1,8 +1,16 @@
 import { createElement } from '../render.js';
 
-function createTripEditTemplate() {
+function createTripFormTemplate(isEdit) {
+  const resetTest = isEdit ? 'Delete' : 'Cancel';
+  const rollupButton = isEdit
+    ? `<button class="event__rollup-btn" type="button">
+         <span class="visually-hidden">Open event</span>
+       </button>`
+    : '';
+
   return (
-    `<form class="event event--edit" action="#" method="post">
+    `<li class="trip-events__item">
+    <form class="event event--edit" action="#" method="post">
         <header class="event__header">
           <div class="event__type-wrapper">
             <label class="event__type  event__type-btn" for="event-type-toggle-1">
@@ -92,21 +100,24 @@ function createTripEditTemplate() {
           </div>
 
           <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-          <button class="event__reset-btn" type="reset">Delete</button>
-          <button class="event__rollup-btn" type="button">
-            <span class="visually-hidden">Open event</span>
-          </button>
+          <button class="event__reset-btn" type="reset">${resetTest}</button>
+          ${rollupButton}
         </header>
         <section class="event__details">
 
         </section>
-      </form>`
+      </form>
+      </li>`
   );
 }
 
-export default class TripEditView {
+export default class TripFormView {
+  constructor({ isEdit = false } = {}) {
+    this.isEdit = isEdit;
+  }
+
   getTemplate() {
-    return createTripEditTemplate();
+    return createTripFormTemplate(this.isEdit);
   }
 
   getElement() {
