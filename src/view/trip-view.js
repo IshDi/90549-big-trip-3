@@ -1,33 +1,46 @@
 import { createElement } from '../render.js';
+import { formatTime, formatDate, formatDateValue, formatDuration } from '../util.js';
 
-function createTripTemplate() {
+function createTripTemplate(point, offers, destination) {
+  const offersTotal = offers.reduce((sum, offer) => sum + offer.price, 0);
+  const totalCost = point.basePrice + offersTotal;
+
+  const isFavorite = point.isFavorite ? 'event__favorite-btn event__favorite-btn--active' : 'event__favorite-btn';
+
+  const offersInfo = offers
+    .map(
+      (offer) =>
+        `<li class="event__offer">
+            <span class="event__offer-title">${offer.title}</span>
+            &plus;&euro;&nbsp;
+            <span class="event__offer-price">${offer.price}</span>
+          </li>`,
+    )
+    .join('');
+
   return (
     /* HTML */
     `<li class="trip-events__item">
       <div class="event">
-        <time class="event__date" datetime="2019-03-18">MAR 18</time>
+        <time class="event__date" datetime="${formatDateValue(point.dateFrom)}">${formatDate(point.dateFrom)}</time>
         <div class="event__type">
-          <img class="event__type-icon" width="42" height="42" src="img/icons/taxi.png" alt="Event type icon" />
+          <img class="event__type-icon" width="42" height="42" src="img/icons/${point.type}.png" alt="Event type icon" />
         </div>
-        <h3 class="event__title">Taxi Amsterdam</h3>
+        <h3 class="event__title">${point.type} ${destination.name}</h3>
         <div class="event__schedule">
           <p class="event__time">
-            <time class="event__start-time" datetime="2019-03-18T10:30">10:30</time>
+            <time class="event__start-time" datetime="${point.dateFrom}">${formatTime(point.dateFrom)}</time>
             &mdash;
-            <time class="event__end-time" datetime="2019-03-18T11:00">11:00</time>
+            <time class="event__end-time" datetime="${point.dateTo}">${formatTime(point.dateTo)}</time>
           </p>
-          <p class="event__duration">30M</p>
+          <p class="event__duration">${formatDuration(point.dateFrom, point.dateTo)}</p>
         </div>
-        <p class="event__price">&euro;&nbsp;<span class="event__price-value">20</span></p>
+        <p class="event__price">&euro;&nbsp;<span class="event__price-value">${totalCost}</span></p>
         <h4 class="visually-hidden">Offers:</h4>
         <ul class="event__selected-offers">
-          <li class="event__offer">
-            <span class="event__offer-title">Order Uber</span>
-            &plus;&euro;&nbsp;
-            <span class="event__offer-price">20</span>
-          </li>
+          ${offersInfo}
         </ul>
-        <button class="event__favorite-btn event__favorite-btn--active" type="button">
+        <button class="${isFavorite}" type="button">
           <span class="visually-hidden">Add to favorite</span>
           <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
             <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z" />
@@ -42,8 +55,14 @@ function createTripTemplate() {
 }
 
 export default class TripView {
+  constructor({ point, offers, destination }) {
+    this.point = point;
+    this.offers = offers;
+    this.destination = destination;
+  }
+
   getTemplate() {
-    return createTripTemplate();
+    return createTripTemplate(this.point, this.offers, this.destination);
   }
 
   getElement() {
