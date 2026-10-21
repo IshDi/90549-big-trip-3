@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 
 const getRandomArrayElement = (items) => items[Math.floor(Math.random() * items.length)];
 
-const formatType = (type) => type.charAt(0).toUpperCase() + type.slice(1);
+const capitalize = (type) => type.charAt(0).toUpperCase() + type.slice(1);
 
 const formatDateTime = (isoString) => dayjs(isoString).format('DD/MM/YY HH:mm');
 
@@ -23,4 +23,4 @@ const formatDuration = (dateFrom, dateTo) => {
   return `${minutes}M`;
 };
 
-export { getRandomArrayElement, formatType, formatDateTime, formatTime, formatDate, formatDateValue, formatDuration };
+export { getRandomArrayElement, capitalize, formatDateTime, formatTime, formatDate, formatDateValue, formatDuration };

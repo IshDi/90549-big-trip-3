@@ -2,8 +2,9 @@ import { createElement } from '../render.js';
 import { formatTime, formatDate, formatDateValue, formatDuration } from '../util.js';
 
 function createTripTemplate(point, offers, destination) {
+  const { basePrice, dateFrom, dateTo, type } = point;
   const offersTotal = offers.reduce((sum, offer) => sum + offer.price, 0);
-  const totalCost = point.basePrice + offersTotal;
+  const totalCost = basePrice + offersTotal;
 
   const isFavorite = point.isFavorite ? 'event__favorite-btn event__favorite-btn--active' : 'event__favorite-btn';
 
@@ -22,18 +23,18 @@ function createTripTemplate(point, offers, destination) {
     /* HTML */
     `<li class="trip-events__item">
       <div class="event">
-        <time class="event__date" datetime="${formatDateValue(point.dateFrom)}">${formatDate(point.dateFrom)}</time>
+        <time class="event__date" datetime="${formatDateValue(dateFrom)}">${formatDate(dateFrom)}</time>
         <div class="event__type">
-          <img class="event__type-icon" width="42" height="42" src="img/icons/${point.type}.png" alt="Event type icon" />
+          <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon" />
         </div>
-        <h3 class="event__title">${point.type} ${destination.name}</h3>
+        <h3 class="event__title">${type} ${destination.name}</h3>
         <div class="event__schedule">
           <p class="event__time">
-            <time class="event__start-time" datetime="${point.dateFrom}">${formatTime(point.dateFrom)}</time>
+            <time class="event__start-time" datetime="${dateFrom}">${formatTime(dateFrom)}</time>
             &mdash;
-            <time class="event__end-time" datetime="${point.dateTo}">${formatTime(point.dateTo)}</time>
+            <time class="event__end-time" datetime="${dateTo}">${formatTime(dateTo)}</time>
           </p>
-          <p class="event__duration">${formatDuration(point.dateFrom, point.dateTo)}</p>
+          <p class="event__duration">${formatDuration(dateFrom, dateTo)}</p>
         </div>
         <p class="event__price">&euro;&nbsp;<span class="event__price-value">${totalCost}</span></p>
         <h4 class="visually-hidden">Offers:</h4>

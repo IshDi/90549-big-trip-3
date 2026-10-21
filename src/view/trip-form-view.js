@@ -1,5 +1,5 @@
 import { createElement } from '../render.js';
-import { formatType, formatDateTime } from '../util.js';
+import { capitalize, formatDateTime } from '../util.js';
 import { TYPES } from '../consts.js';
 import TripOfferView from './trip-offer-view.js';
 
@@ -39,7 +39,7 @@ function createTripFormTemplate(isEdit, point, allOffers, pointDestination, allD
       /* HTML */
       `<div class="event__type-item">
         <input id="event-type-${item}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${item}" ${item === type ? 'checked' : ''} />
-        <label class="event__type-label  event__type-label--${item}" for="event-type-${item}-1">${formatType(item)}</label>
+        <label class="event__type-label  event__type-label--${item}" for="event-type-${item}-1">${capitalize(item)}</label>
       </div>`,
   ).join('');
 
@@ -66,7 +66,7 @@ function createTripFormTemplate(isEdit, point, allOffers, pointDestination, allD
           </div>
 
           <div class="event__field-group  event__field-group--destination">
-            <label class="event__label  event__type-output" for="event-destination-1"> ${formatType(type)} </label>
+            <label class="event__label  event__type-output" for="event-destination-1"> ${capitalize(type)} </label>
             <input
               class="event__input  event__input--destination"
               id="event-destination-1"
