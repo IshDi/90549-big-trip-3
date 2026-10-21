@@ -1,4 +1,4 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import { capitalize, formatDateTime } from '../util.js';
 import { TYPES } from '../consts.js';
 import TripOfferView from './trip-offer-view.js';
@@ -18,7 +18,7 @@ function createTripFormTemplate(isEdit, point, allOffers, pointDestination, allD
 
   const destinationOptions = allDestination.map((item) => `<option value="${item.name}"></option>`).join('');
 
-  const pictures = pointDestination.pictures.length
+  const pictures = pointDestination?.pictures.length
     ? `<div class="event__photos-container">
         <div class="event__photos-tape">
         ${pointDestination.pictures.map((picture) => `<img class="event__photo" src="${picture.src}" alt="${picture.alt}" />`).join('')}
@@ -43,7 +43,7 @@ function createTripFormTemplate(isEdit, point, allOffers, pointDestination, allD
       </div>`,
   ).join('');
 
-  const offersBlock = new TripOfferView(point, allOffers).getTemplate();
+  const offersBlock = new TripOfferView(point, allOffers).template;
 
   return (
     /* HTML */
@@ -104,8 +104,9 @@ function createTripFormTemplate(isEdit, point, allOffers, pointDestination, allD
   );
 }
 
-export default class TripFormView {
+export default class TripFormView extends AbstractView {
   constructor({ isEdit = false, point, allOffers, pointDestination, allDestination }) {
+    super();
     this.isEdit = isEdit;
     this.point = point;
     this.allOffers = allOffers;
@@ -113,19 +114,7 @@ export default class TripFormView {
     this.allDestination = allDestination;
   }
 
-  getTemplate() {
+  get template() {
     return createTripFormTemplate(this.isEdit, this.point, this.allOffers, this.pointDestination, this.allDestination);
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
   }
 }
