@@ -12,6 +12,8 @@ function createTripFormTemplate(isEdit, point, allOffers, pointDestination, allD
        </button>`
     : '';
 
+  console.log(pointDestination);
+
   const type = point?.type ?? TYPES[5];
 
   const destinationName = pointDestination?.name ?? '';
@@ -26,7 +28,7 @@ function createTripFormTemplate(isEdit, point, allOffers, pointDestination, allD
       </div>`
     : '';
 
-  const destinationBlock = pointDestination
+  const destinationBlock = pointDestination?.description
     ? `<section class="event__section  event__section--destination">
       <h3 class="event__section-title  event__section-title--destination">Destination</h3>
       <p class="event__destination-description">${pointDestination.description}</p>
