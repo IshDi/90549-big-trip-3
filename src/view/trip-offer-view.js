@@ -35,13 +35,16 @@ function createTripOfferTemplate(point, offers) {
 }
 
 export default class TripOfferView extends AbstractView {
+  #point = null;
+  #offers = null;
+
   constructor(point, offers) {
     super();
-    this.point = point;
-    this.offers = offers;
+    this.#point = point;
+    this.#offers = offers;
   }
 
   get template() {
-    return createTripOfferTemplate(this.point, this.offers);
+    return createTripOfferTemplate(this.#point, this.#offers);
   }
 }

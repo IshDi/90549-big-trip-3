@@ -105,16 +105,22 @@ function createTripFormTemplate(isEdit, point, allOffers, pointDestination, allD
 }
 
 export default class TripFormView extends AbstractView {
+  #isEdit = null;
+  #point = null;
+  #allOffers = null;
+  #pointDestination = null;
+  #allDestination = null;
+
   constructor({ isEdit = false, point, allOffers, pointDestination, allDestination }) {
     super();
-    this.isEdit = isEdit;
-    this.point = point;
-    this.allOffers = allOffers;
-    this.pointDestination = pointDestination;
-    this.allDestination = allDestination;
+    this.#isEdit = isEdit;
+    this.#point = point;
+    this.#allOffers = allOffers;
+    this.#pointDestination = pointDestination;
+    this.#allDestination = allDestination;
   }
 
   get template() {
-    return createTripFormTemplate(this.isEdit, this.point, this.allOffers, this.pointDestination, this.allDestination);
+    return createTripFormTemplate(this.#isEdit, this.#point, this.#allOffers, this.#pointDestination, this.#allDestination);
   }
 }

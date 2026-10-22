@@ -5,12 +5,14 @@ function createTripMessageTemplate(message) {
 }
 
 export default class TripMessageView extends AbstractView {
+  #message = null;
+
   constructor(message = '') {
     super();
-    this.message = message;
+    this.#message = message;
   }
 
   get template() {
-    return createTripMessageTemplate(this.message);
+    return createTripMessageTemplate(this.#message);
   }
 }

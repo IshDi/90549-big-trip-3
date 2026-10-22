@@ -56,14 +56,18 @@ function createTripTemplate(point, offers, destination) {
 }
 
 export default class TripView extends AbstractView {
+  #point = null;
+  #offers = null;
+  #destination = null;
+
   constructor({ point, offers, destination }) {
     super();
-    this.point = point;
-    this.offers = offers;
-    this.destination = destination;
+    this.#point = point;
+    this.#offers = offers;
+    this.#destination = destination;
   }
 
   get template() {
-    return createTripTemplate(this.point, this.offers, this.destination);
+    return createTripTemplate(this.#point, this.#offers, this.#destination);
   }
 }
