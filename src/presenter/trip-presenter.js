@@ -42,12 +42,17 @@ export default class TripPresenter {
     render(editorPoint, this.#tripListComponent.element);
 
     for (let i = 2; i < this.eventListPoints.length; i++) {
-      const point = new TripView({
-        point: this.eventListPoints[i],
-        offers: [...this.#pointsModel.getOffersById(this.eventListPoints[i].type, this.eventListPoints[i].offers)],
-        destination: this.#pointsModel.getDestinationsById(this.eventListPoints[i].destination),
-      });
-      render(point, this.#tripListComponent.element);
+      this.#renderPoint(this.eventListPoints[i]);
     }
+  }
+
+  #renderPoint(eventPoint) {
+    const pointElement = new TripView({
+      point: eventPoint,
+      offers: this.#pointsModel.getOffersById(eventPoint.type, eventPoint.offers),
+      destination: this.#pointsModel.getDestinationsById(eventPoint.destination),
+    });
+
+    render(pointElement, this.#tripListComponent.element);
   }
 }
