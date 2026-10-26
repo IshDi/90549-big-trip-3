@@ -91,7 +91,7 @@ function createTripFormTemplate(isEdit, point, allOffers, pointDestination, allD
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="160" />
+            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${point.basePrice}" />
           </div>
 
           <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -111,16 +111,30 @@ export default class TripFormView extends AbstractView {
   #pointDestination = null;
   #allDestination = null;
 
-  constructor({ isEdit = false, point, allOffers, pointDestination, allDestination }) {
+  constructor({ isEdit = false, point, allOffers, pointDestination, allDestination, onFormSubmit, onRollupClick }) {
     super();
     this.#isEdit = isEdit;
     this.#point = point;
     this.#allOffers = allOffers;
     this.#pointDestination = pointDestination;
     this.#allDestination = allDestination;
+
+    this.formElement.addEventListener('submit', onFormSubmit);
+
+    if (this.rollupButton) {
+      this.rollupButton.addEventListener('click', onRollupClick);
+    }
   }
 
   get template() {
     return createTripFormTemplate(this.#isEdit, this.#point, this.#allOffers, this.#pointDestination, this.#allDestination);
+  }
+
+  get formElement() {
+    return this.element.querySelector('.event--edit');
+  }
+
+  get rollupButton() {
+    return this.element.querySelector('.event__rollup-btn');
   }
 }

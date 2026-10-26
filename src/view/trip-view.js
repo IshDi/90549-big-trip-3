@@ -60,14 +60,20 @@ export default class TripView extends AbstractView {
   #offers = null;
   #destination = null;
 
-  constructor({ point, offers, destination }) {
+  constructor({ point, offers, destination, onRollupClick }) {
     super();
     this.#point = point;
     this.#offers = offers;
     this.#destination = destination;
+
+    this.rollupButton.addEventListener('click', onRollupClick);
   }
 
   get template() {
     return createTripTemplate(this.#point, this.#offers, this.#destination);
+  }
+
+  get rollupButton() {
+    return this.element.querySelector('.event__rollup-btn');
   }
 }
