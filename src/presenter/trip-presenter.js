@@ -6,11 +6,11 @@ import TripView from '../view/trip-view.js';
 
 export default class TripPresenter {
   #tripListComponent = new TripListView();
-
+  #sortComponent = new SortView();
   #tripContainet = null;
   #pointsModel = null;
-
   #escHandler = null;
+  // добавить когда нет точек NoPointView
 
   constructor({ tripContainet, pointsModel }) {
     this.#tripContainet = tripContainet;
@@ -20,12 +20,11 @@ export default class TripPresenter {
   init() {
     this.eventListPoints = [...this.#pointsModel.points];
 
-    render(new SortView(), this.#tripContainet);
-    render(this.#tripListComponent, this.#tripContainet);
+    this.#renderTripEvents();
+  }
 
-    for (let i = 0; i < this.eventListPoints.length; i++) {
-      this.#renderPoint(this.eventListPoints[i]);
-    }
+  #renderSort() {
+    render(this.#sortComponent, this.#tripContainet);
   }
 
   #renderPoint(eventPoint) {
@@ -72,7 +71,7 @@ export default class TripPresenter {
   }
 
   #onEscKeyDown = (evt) => {
-    if (evt.key === 'Escape') {
+    if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
       this.#escHandler?.();
     }
@@ -86,5 +85,18 @@ export default class TripPresenter {
   #unbindEscape() {
     document.removeEventListener('keydown', this.#onEscKeyDown);
     this.#escHandler = null;
+  }
+
+  #renderPointList() {
+    render(this.#tripListComponent, this.#tripContainet);
+  }
+
+  #renderTripEvents() {
+    this.#renderSort();
+    this.#renderPointList();
+
+    for (let i = 0; i < this.eventListPoints.length; i++) {
+      this.#renderPoint(this.eventListPoints[i]);
+    }
   }
 }
