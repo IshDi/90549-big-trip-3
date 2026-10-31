@@ -16,9 +16,26 @@ export default class PointPresenter {
 
   init(eventPoint) {
     this.#eventPoint = eventPoint;
+
+    const prevPointComponent = this.#pointComponent;
+    const prevFormComponent = this.#formComponent;
+
     this.#pointComponent = this.#createPointComponent();
 
-    render(this.#pointComponent, this.#pointListContainer);
+    if (prevPointComponent === null && prevFormComponent === null) {
+      render(this.#pointComponent, this.#pointListContainer);
+    } else {
+      if (prevPointComponent && this.#pointListContainer.contains(prevPointComponent.element)) {
+        replace(this.#pointComponent, prevPointComponent);
+      }
+      if (prevFormComponent && this.#pointListContainer.contains(prevFormComponent.element)) {
+        replace(this.#pointComponent, prevFormComponent);
+      }
+    }
+    remove(prevFormComponent);
+    remove(prevPointComponent);
+
+    this.#formComponent = null;
   }
 
   #destroy() {
