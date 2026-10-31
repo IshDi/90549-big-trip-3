@@ -1,4 +1,4 @@
-import { render } from '../framework/render.js';
+import { render, remove } from '../framework/render.js';
 import SortView from '../view/sort-view.js';
 import TripListView from '../view/trip-list-view.js';
 import PointPresenter from './point-presenter.js';
@@ -29,6 +29,12 @@ export default class TripPresenter {
 
   #renderPointList() {
     render(this.#tripListComponent, this.#tripContainet);
+  }
+
+  #clearPointList() {
+    this.#pointPresenters.forEach((presenter) => presenter.destroy());
+    this.#pointPresenters.clear();
+    remove(this.#tripListComponent);
   }
 
   #renderPoint(eventPoint) {
