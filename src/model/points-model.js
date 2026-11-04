@@ -22,17 +22,19 @@ export default class PointsModel {
   }
 
   getDestinationsById(id) {
-    const allDestinations = this.descriptions;
-    return allDestinations.find((item) => item.id === id);
+    return this.#descriptions.find((item) => item.id === id);
   }
 
   getOffersByType(type) {
-    const allOffers = this.offers;
-    return allOffers.find((item) => item.type === type)?.offers ?? [];
+    return this.#offers.find((item) => item.type === type)?.offers ?? [];
   }
 
   getOffersById(type, itemsId) {
     const offersByType = this.getOffersByType(type);
     return offersByType.filter((item) => itemsId.includes(item.id));
+  }
+
+  updatePoint(updatedPoint) {
+    this.#points = this.#points.map((point) => (point.id === updatedPoint.id ? updatedPoint : point));
   }
 }

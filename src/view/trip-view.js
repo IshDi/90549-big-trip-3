@@ -1,12 +1,12 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import { formatTime, formatDate, formatDateValue, formatDuration } from '../util.js';
 
-function createTripTemplate(point, offers, destination) {
-  const { basePrice, dateFrom, dateTo, type } = point;
+function createTripTemplate({ point, offers, destination }) {
+  const { basePrice, dateFrom, dateTo, type, isFavorite } = point;
   const offersTotal = offers.reduce((sum, offer) => sum + offer.price, 0);
   const totalCost = basePrice + offersTotal;
 
-  const isFavorite = point.isFavorite ? 'event__favorite-btn event__favorite-btn--active' : 'event__favorite-btn';
+  const favoriteClass = isFavorite ? 'event__favorite-btn event__favorite-btn--active' : 'event__favorite-btn';
 
   const offersInfo = offers
     .map(
@@ -41,7 +41,7 @@ function createTripTemplate(point, offers, destination) {
         <ul class="event__selected-offers">
           ${offersInfo}
         </ul>
-        <button class="${isFavorite}" type="button">
+        <button class="${favoriteClass}" type="button">
           <span class="visually-hidden">Add to favorite</span>
           <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
             <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z" />
@@ -57,23 +57,46 @@ function createTripTemplate(point, offers, destination) {
 
 export default class TripView extends AbstractView {
   #point = null;
-  #offers = null;
+  #offers = [];
   #destination = null;
+  #handleRollupClick = null;
+  #handleFavoriteClick = null;
 
-  constructor({ point, offers, destination, onRollupClick }) {
+  constructor({ point, offers, destination, onRollupClick, onFavoriteClick }) {
     super();
     this.#point = point;
     this.#offers = offers;
     this.#destination = destination;
+    this.#handleRollupClick = onRollupClick;
+    this.#handleFavoriteClick = onFavoriteClick;
 
-    this.rollupButton.addEventListener('click', onRollupClick);
+    this.rollupButton.addEventListener('click', this.#rollupClickHandler);
+    this.favoriteButton.addEventListener('click', this.#favoriteClickHandler);
   }
 
   get template() {
-    return createTripTemplate(this.#point, this.#offers, this.#destination);
+    return createTripTemplate({
+      point: this.#point,
+      offers: this.#offers,
+      destination: this.#destination,
+    });
   }
 
   get rollupButton() {
     return this.element.querySelector('.event__rollup-btn');
   }
+
+  get favoriteButton() {
+    return this.element.querySelector('.event__favorite-btn');
+  }
+
+  #rollupClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleRollupClick?.();
+  };
+
+  #favoriteClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFavoriteClick?.();
+  };
 }

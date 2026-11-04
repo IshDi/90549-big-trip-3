@@ -5,13 +5,15 @@ import TripView from '../view/trip-view.js';
 export default class PointPresenter {
   #pointListContainer = null;
   #pointsModel = null;
+  #handleDataChange = null;
   #eventPoint = null;
   #pointComponent = null;
   #formComponent = null;
 
-  constructor({ pointListContainer, pointsModel }) {
+  constructor({ pointListContainer, pointsModel, onDataChange }) {
     this.#pointListContainer = pointListContainer;
     this.#pointsModel = pointsModel;
+    this.#handleDataChange = onDataChange;
   }
 
   init(eventPoint) {
@@ -38,7 +40,7 @@ export default class PointPresenter {
     this.#formComponent = null;
   }
 
-  #destroy() {
+  destroy() {
     this.#unbindEscape();
     remove(this.#pointComponent);
     remove(this.#formComponent);
@@ -54,8 +56,16 @@ export default class PointPresenter {
       offers: this.#pointsModel.getOffersById(this.#eventPoint.type, this.#eventPoint.offers),
       destination: this.#pointsModel.getDestinationsById(this.#eventPoint.destination),
       onRollupClick: () => this.#replacePointToForm(),
+      onFavoriteClick: this.#favoriteClickHandler,
     });
   }
+
+  #favoriteClickHandler = () => {
+    this.#handleDataChange?.({
+      ...this.#eventPoint,
+      isFavorite: !this.#eventPoint.isFavorite,
+    });
+  };
 
   #replacePointToForm() {
     this.#formComponent = new TripFormView({
