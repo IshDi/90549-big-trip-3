@@ -1,4 +1,4 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import { capitalize, formatDateTime } from '../util.js';
 import { TYPES } from '../consts.js';
 import TripOfferView from './trip-offer-view.js';
@@ -18,7 +18,7 @@ function createTripFormTemplate(isEdit, point, allOffers, pointDestination, allD
 
   const destinationOptions = allDestination.map((item) => `<option value="${item.name}"></option>`).join('');
 
-  const pictures = pointDestination.pictures.length
+  const pictures = pointDestination?.pictures.length
     ? `<div class="event__photos-container">
         <div class="event__photos-tape">
         ${pointDestination.pictures.map((picture) => `<img class="event__photo" src="${picture.src}" alt="${picture.alt}" />`).join('')}
@@ -26,7 +26,7 @@ function createTripFormTemplate(isEdit, point, allOffers, pointDestination, allD
       </div>`
     : '';
 
-  const destinationBlock = pointDestination
+  const destinationBlock = pointDestination?.description
     ? `<section class="event__section  event__section--destination">
       <h3 class="event__section-title  event__section-title--destination">Destination</h3>
       <p class="event__destination-description">${pointDestination.description}</p>
@@ -43,7 +43,7 @@ function createTripFormTemplate(isEdit, point, allOffers, pointDestination, allD
       </div>`,
   ).join('');
 
-  const offersBlock = new TripOfferView(point, allOffers).getTemplate();
+  const offersBlock = new TripOfferView(point, allOffers).template;
 
   return (
     /* HTML */
@@ -91,7 +91,7 @@ function createTripFormTemplate(isEdit, point, allOffers, pointDestination, allD
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="160" />
+            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${point.basePrice}" />
           </div>
 
           <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -104,28 +104,37 @@ function createTripFormTemplate(isEdit, point, allOffers, pointDestination, allD
   );
 }
 
-export default class TripFormView {
-  constructor({ isEdit = false, point, allOffers, pointDestination, allDestination }) {
-    this.isEdit = isEdit;
-    this.point = point;
-    this.allOffers = allOffers;
-    this.pointDestination = pointDestination;
-    this.allDestination = allDestination;
-  }
+export default class TripFormView extends AbstractView {
+  #isEdit = null;
+  #point = null;
+  #allOffers = null;
+  #pointDestination = null;
+  #allDestination = null;
 
-  getTemplate() {
-    return createTripFormTemplate(this.isEdit, this.point, this.allOffers, this.pointDestination, this.allDestination);
-  }
+  constructor({ isEdit = false, point, allOffers, pointDestination, allDestination, onFormSubmit, onRollupClick }) {
+    super();
+    this.#isEdit = isEdit;
+    this.#point = point;
+    this.#allOffers = allOffers;
+    this.#pointDestination = pointDestination;
+    this.#allDestination = allDestination;
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+    this.formElement.addEventListener('submit', onFormSubmit);
+
+    if (this.rollupButton) {
+      this.rollupButton.addEventListener('click', onRollupClick);
     }
-
-    return this.element;
   }
 
-  removeElement() {
-    this.element = null;
+  get template() {
+    return createTripFormTemplate(this.#isEdit, this.#point, this.#allOffers, this.#pointDestination, this.#allDestination);
+  }
+
+  get formElement() {
+    return this.element.querySelector('.event--edit');
+  }
+
+  get rollupButton() {
+    return this.element.querySelector('.event__rollup-btn');
   }
 }

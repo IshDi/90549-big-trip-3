@@ -1,4 +1,4 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
 function createTripOfferTemplate(point, offers) {
   const selectedOffers = point?.offers ?? [];
@@ -34,25 +34,17 @@ function createTripOfferTemplate(point, offers) {
     : '';
 }
 
-export default class TripOfferView {
+export default class TripOfferView extends AbstractView {
+  #point = null;
+  #offers = null;
+
   constructor(point, offers) {
-    this.point = point;
-    this.offers = offers;
+    super();
+    this.#point = point;
+    this.#offers = offers;
   }
 
-  getTemplate() {
-    return createTripOfferTemplate(this.point, this.offers);
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
+  get template() {
+    return createTripOfferTemplate(this.#point, this.#offers);
   }
 }

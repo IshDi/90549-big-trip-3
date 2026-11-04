@@ -1,50 +1,68 @@
-import { render } from '../render.js';
+import { render, remove } from '../framework/render.js';
 import SortView from '../view/sort-view.js';
 import TripListView from '../view/trip-list-view.js';
-import TripFormView from '../view/trip-form-view.js';
-import TripView from '../view/trip-view.js';
+import PointPresenter from './point-presenter.js';
 
 export default class TripPresenter {
-  tripListComponent = new TripListView();
+  #tripListComponent = new TripListView();
+  #sortComponent = new SortView();
+  #tripContainet = null;
+  #pointsModel = null;
+  #eventListPoints = [];
+  #pointPresenters = new Map();
+  // добавить когда нет точек NoPointView
 
   constructor({ tripContainet, pointsModel }) {
-    this.tripContainet = tripContainet;
-    this.pointsModel = pointsModel;
+    this.#tripContainet = tripContainet;
+    this.#pointsModel = pointsModel;
   }
 
   init() {
-    this.eventListPoints = [...this.pointsModel.getPoints()];
+    this.#eventListPoints = [...this.#pointsModel.points];
 
-    render(new SortView(), this.tripContainet);
-    render(this.tripListComponent, this.tripContainet);
+    this.#renderTripEvents();
+  }
 
-    const createPoint = new TripFormView({
-      isEdit: false,
-      point: this.eventListPoints[0],
-      allOffers: this.pointsModel.getOffersByType(this.eventListPoints[0].type),
-      pointDestination: this.pointsModel.getDestinationsById(this.eventListPoints[0].destination),
-      allDestination: this.pointsModel.getDescriptions(),
+  #renderSort() {
+    render(this.#sortComponent, this.#tripContainet);
+  }
+
+  #renderPointList() {
+    render(this.#tripListComponent, this.#tripContainet);
+  }
+
+  #clearPointList() {
+    this.#pointPresenters.forEach((presenter) => presenter.destroy());
+    this.#pointPresenters.clear();
+    remove(this.#tripListComponent);
+    this.#tripListComponent = new TripListView();
+  }
+
+  #renderPoint(eventPoint) {
+    const pointPresenter = new PointPresenter({
+      pointListContainer: this.#tripListComponent.element,
+      pointsModel: this.#pointsModel,
+      onDataChange: this.#handlePointChange,
     });
 
-    render(createPoint, this.tripListComponent.getElement());
+    pointPresenter.init(eventPoint);
+    this.#pointPresenters.set(eventPoint.id, pointPresenter);
+  }
 
-    const editorPoint = new TripFormView({
-      isEdit: true,
-      point: this.eventListPoints[1],
-      allOffers: this.pointsModel.getOffersByType(this.eventListPoints[1].type),
-      pointDestination: this.pointsModel.getDestinationsById(this.eventListPoints[1].destination),
-      allDestination: this.pointsModel.getDescriptions(),
-    });
+  #handlePointChange = (updatedPoint) => {
+    this.#pointsModel.updatePoint(updatedPoint);
+    this.#eventListPoints = [...this.#pointsModel.points];
 
-    render(editorPoint, this.tripListComponent.getElement());
+    const present = this.#pointPresenters.get(updatedPoint.id);
+    present.init(updatedPoint);
+  };
 
-    for (let i = 2; i < this.eventListPoints.length; i++) {
-      const point = new TripView({
-        point: this.eventListPoints[i],
-        offers: [...this.pointsModel.getOffersById(this.eventListPoints[i].type, this.eventListPoints[i].offers)],
-        destination: this.pointsModel.getDestinationsById(this.eventListPoints[i].destination),
-      });
-      render(point, this.tripListComponent.getElement());
+  #renderTripEvents() {
+    this.#renderSort();
+    this.#renderPointList();
+
+    for (let i = 0; i < this.#eventListPoints.length; i++) {
+      this.#renderPoint(this.#eventListPoints[i]);
     }
   }
 }
