@@ -43,6 +43,7 @@ export default class TripPresenter {
       pointListContainer: this.#tripListComponent.element,
       pointsModel: this.#pointsModel,
       onDataChange: this.#handlePointChange,
+      onFormOpen: this.#resetAllViews,
     });
 
     pointPresenter.init(eventPoint);
@@ -65,4 +66,8 @@ export default class TripPresenter {
       this.#renderPoint(this.#eventListPoints[i]);
     }
   }
+
+  #resetAllViews = () => {
+    this.#pointPresenters.forEach((presenter) => presenter.resetView());
+  };
 }
