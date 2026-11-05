@@ -9,11 +9,13 @@ export default class PointPresenter {
   #eventPoint = null;
   #pointComponent = null;
   #formComponent = null;
+  #handleFormOpen = null;
 
-  constructor({ pointListContainer, pointsModel, onDataChange }) {
+  constructor({ pointListContainer, pointsModel, onDataChange, onFormOpen }) {
     this.#pointListContainer = pointListContainer;
     this.#pointsModel = pointsModel;
     this.#handleDataChange = onDataChange;
+    this.#handleFormOpen = onFormOpen;
   }
 
   init(eventPoint) {
@@ -56,11 +58,11 @@ export default class PointPresenter {
       offers: this.#pointsModel.getOffersById(this.#eventPoint.type, this.#eventPoint.offers),
       destination: this.#pointsModel.getDestinationsById(this.#eventPoint.destination),
       onRollupClick: () => this.#replacePointToForm(),
-      onFavoriteClick: this.#favoriteClickHandler,
+      onFavoriteClick: this.#handleFavoriteClick,
     });
   }
 
-  #favoriteClickHandler = () => {
+  #handleFavoriteClick = () => {
     this.#handleDataChange?.({
       ...this.#eventPoint,
       isFavorite: !this.#eventPoint.isFavorite,
@@ -68,6 +70,8 @@ export default class PointPresenter {
   };
 
   #replacePointToForm() {
+    this.#handleFormOpen?.();
+
     this.#formComponent = new TripFormView({
       isEdit: true,
       point: this.#eventPoint,
@@ -102,6 +106,12 @@ export default class PointPresenter {
       this.#replaceFormToPoint();
     }
   };
+
+  resetView() {
+    if (this.#formComponent) {
+      this.#replaceFormToPoint();
+    }
+  }
 
   #bindEscape() {
     document.addEventListener('keydown', this.#onEscKeyDown);
