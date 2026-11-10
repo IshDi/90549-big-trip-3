@@ -3,8 +3,6 @@ import { formatTime, formatDate, formatDateValue, formatDuration } from '../util
 
 function createTripTemplate({ point, offers, destination }) {
   const { basePrice, dateFrom, dateTo, type, isFavorite } = point;
-  const offersTotal = offers.reduce((sum, offer) => sum + offer.price, 0);
-  const totalCost = basePrice + offersTotal;
 
   const favoriteClass = isFavorite ? 'event__favorite-btn event__favorite-btn--active' : 'event__favorite-btn';
 
@@ -36,7 +34,7 @@ function createTripTemplate({ point, offers, destination }) {
           </p>
           <p class="event__duration">${formatDuration(dateFrom, dateTo)}</p>
         </div>
-        <p class="event__price">&euro;&nbsp;<span class="event__price-value">${totalCost}</span></p>
+        <p class="event__price">&euro;&nbsp;<span class="event__price-value">${basePrice}</span></p>
         <h4 class="visually-hidden">Offers:</h4>
         <ul class="event__selected-offers">
           ${offersInfo}
