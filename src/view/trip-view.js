@@ -1,12 +1,13 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import { formatTime, formatDate, formatDateValue, formatDuration } from '../util.js';
 
+const ROLLUP_BUTTON_CLASS_NAME = 'event__rollup-btn';
+const FAVORITE_BUTTON_CLASS_NAME = 'event__favorite-btn';
+
 function createTripTemplate({ point, offers, destination }) {
   const { basePrice, dateFrom, dateTo, type, isFavorite } = point;
-  const offersTotal = offers.reduce((sum, offer) => sum + offer.price, 0);
-  const totalCost = basePrice + offersTotal;
 
-  const favoriteClass = isFavorite ? 'event__favorite-btn event__favorite-btn--active' : 'event__favorite-btn';
+  const favoriteClass = isFavorite ? `${FAVORITE_BUTTON_CLASS_NAME} event__favorite-btn--active` : `${FAVORITE_BUTTON_CLASS_NAME}`;
 
   const offersInfo = offers
     .map(
@@ -36,7 +37,7 @@ function createTripTemplate({ point, offers, destination }) {
           </p>
           <p class="event__duration">${formatDuration(dateFrom, dateTo)}</p>
         </div>
-        <p class="event__price">&euro;&nbsp;<span class="event__price-value">${totalCost}</span></p>
+        <p class="event__price">&euro;&nbsp;<span class="event__price-value">${basePrice}</span></p>
         <h4 class="visually-hidden">Offers:</h4>
         <ul class="event__selected-offers">
           ${offersInfo}
@@ -47,7 +48,7 @@ function createTripTemplate({ point, offers, destination }) {
             <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z" />
           </svg>
         </button>
-        <button class="event__rollup-btn" type="button">
+        <button class="${ROLLUP_BUTTON_CLASS_NAME}" type="button">
           <span class="visually-hidden">Open event</span>
         </button>
       </div>
@@ -83,11 +84,11 @@ export default class TripView extends AbstractView {
   }
 
   get rollupButton() {
-    return this.element.querySelector('.event__rollup-btn');
+    return this.element.querySelector(`.${ROLLUP_BUTTON_CLASS_NAME}`);
   }
 
   get favoriteButton() {
-    return this.element.querySelector('.event__favorite-btn');
+    return this.element.querySelector(`.${FAVORITE_BUTTON_CLASS_NAME}`);
   }
 
   #rollupClickHandler = (evt) => {

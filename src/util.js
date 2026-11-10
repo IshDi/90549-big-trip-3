@@ -14,13 +14,22 @@ const formatDateValue = (isoString) => dayjs(isoString).format('YYYY-MM-DD');
 
 const formatDuration = (dateFrom, dateTo) => {
   const diffMinutes = dayjs(dateTo).diff(dayjs(dateFrom), 'minute');
+
+  const days = Math.floor(diffMinutes / (60 * 24));
   const hours = Math.floor(diffMinutes / 60);
   const minutes = diffMinutes % 60;
 
-  if (hours > 0) {
-    return `${String(hours).padStart(2, '0')}H ${String(minutes).padStart(2, '0')}M`;
+  const parts = [];
+
+  if (days > 0) {
+    parts.push(`${String(days).padStart(2, '0')}D`);
   }
-  return `${minutes}M`;
+  if (hours > 0 || days > 0) {
+    parts.push(`${String(hours).padStart(2, '0')}H`);
+  }
+  parts.push(`${String(minutes).padStart(2, '0')}M`);
+
+  return parts.join(' ');
 };
 
 export { getRandomArrayElement, capitalize, formatDateTime, formatTime, formatDate, formatDateValue, formatDuration };
