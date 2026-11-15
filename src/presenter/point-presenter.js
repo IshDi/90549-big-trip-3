@@ -28,13 +28,13 @@ export default class PointPresenter {
 
     if (prevPointComponent === null && prevFormComponent === null) {
       render(this.#pointComponent, this.#pointListContainer);
-    } else {
-      if (prevPointComponent && this.#pointListContainer.contains(prevPointComponent.element)) {
-        replace(this.#pointComponent, prevPointComponent);
-      }
-      if (prevFormComponent && this.#pointListContainer.contains(prevFormComponent.element)) {
-        replace(this.#pointComponent, prevFormComponent);
-      }
+      return;
+    }
+    if (prevPointComponent && this.#pointListContainer.contains(prevPointComponent.element)) {
+      replace(this.#pointComponent, prevPointComponent);
+    }
+    if (prevFormComponent && this.#pointListContainer.contains(prevFormComponent.element)) {
+      replace(this.#pointComponent, prevFormComponent);
     }
     remove(prevFormComponent);
     remove(prevPointComponent);
@@ -78,11 +78,12 @@ export default class PointPresenter {
       allOffers: this.#pointsModel.getOffersByType(this.#eventPoint.type),
       pointDestination: this.#pointsModel.getDestinationsById(this.#eventPoint.destination),
       allDestination: this.#pointsModel.descriptions,
-      onFormSubmit: (evt) => {
-        evt.preventDefault();
+      onFormSubmit: (updatedPoint) => {
+        this.#handleDataChange?.(updatedPoint);
         this.#replaceFormToPoint();
       },
       onRollupClick: () => this.#replaceFormToPoint(),
+      getOffersByType: (type) => this.#pointsModel.getOffersByType(type),
     });
 
     this.#bindEscape();
