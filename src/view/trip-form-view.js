@@ -1,6 +1,8 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { capitalize, formatDateTime } from '../util.js';
 import { TYPES } from '../consts.js';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
 
 function createTypeItems(type) {
   return TYPES.map(
@@ -167,6 +169,8 @@ export default class TripFormView extends AbstractStatefulView {
   #onFormSubmit = null;
   #onRollupClick = null;
   #getOffersByType = null;
+  #startDatepicker = null;
+  #endDatepicker = null;
 
   constructor({ isEdit = false, point, allOffers, pointDestination, allDestination, onFormSubmit, onRollupClick, getOffersByType }) {
     super();
@@ -197,6 +201,20 @@ export default class TripFormView extends AbstractStatefulView {
     return this.element.querySelector('.event__rollup-btn');
   }
 
+  removeElement() {
+    super.removeElement();
+
+    if (this.#startDatepicker) {
+      this.#startDatepicker.destroy();
+      this.#startDatepicker = null;
+    }
+
+    if (this.#endDatepicker) {
+      this.#endDatepicker.destroy();
+      this.#endDatepicker = null;
+    }
+  }
+
   _restoreHandlers() {
     this.element.querySelectorAll('.event__type-input').forEach((input) => {
       input.addEventListener('change', this.#typeChangeHandler);
@@ -215,6 +233,8 @@ export default class TripFormView extends AbstractStatefulView {
     if (this.rollupButton) {
       this.rollupButton.addEventListener('click', this.#rollupClickHandler);
     }
+
+    this.#setDatepickers();
   }
 
   #typeChangeHandler = (evt) => {
@@ -270,5 +290,63 @@ export default class TripFormView extends AbstractStatefulView {
   #rollupClickHandler = (evt) => {
     evt.preventDefault();
     this.#onRollupClick?.();
+  };
+
+  #setDatepickers() {
+    const startInput = this.element.querySelector('#event-start-time-1');
+    const endInput = this.element.querySelector('#event-end-time-1');
+
+    this.#startDatepicker = flatpickr(startInput, {
+      dateFormat: 'd/m/y H:i',
+      defaultDate: this._state.point.dateFrom,
+      enableTime: true,
+      onChange: this.#startDateChangeHandler,
+    });
+
+    this.#endDatepicker = flatpickr(endInput, {
+      dateFormat: 'd/m/y H:i',
+      defaultDate: this._state.point.dateTo,
+      enableTime: true,
+      minDate: this._state.point.dateFrom,
+      onChange: this.#endDateChangeHandler,
+    });
+  }
+
+  #startDateChangeHandler = ([userDate]) => {
+    if (!userDate) {
+      this._setState({
+        point: { ...this._state.point, dateFrom: null },
+      });
+      return;
+    }
+
+    this._setState({
+      point: { ...this._state.point, dateFrom: userDate.toISOString() },
+    });
+
+    if (this.#endDatepicker) {
+      this.#endDatepicker.set('minDate', userDate);
+
+      const endDate = this.#endDatepicker.selectedDates[0];
+      if (endDate && endDate < userDate) {
+        this.#endDatepicker.clear();
+        this._setState({
+          point: { ...this._state.point, dateTo: null },
+        });
+      }
+    }
+  };
+
+  #endDateChangeHandler = ([userDate]) => {
+    if (!userDate) {
+      this._setState({
+        point: { ...this._state.point, dateTo: null },
+      });
+      return;
+    }
+
+    this._setState({
+      point: { ...this._state.point, dateTo: userDate.toISOString() },
+    });
   };
 }
