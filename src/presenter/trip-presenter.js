@@ -9,14 +9,23 @@ export default class TripPresenter {
   #sortComponent = null;
   #tripContainet = null;
   #pointsModel = null;
+  #destinationsModel = null;
+  #offersModel = null;
   #currentSortType = SortType.DAY.type;
   #eventListPoints = [];
   #pointPresenters = new Map();
+
   // добавить когда нет точек NoPointView
 
-  constructor({ tripContainet, pointsModel }) {
+  constructor({ tripContainet, pointsModel, destinationsModel, offersModel }) {
     this.#tripContainet = tripContainet;
     this.#pointsModel = pointsModel;
+    this.#destinationsModel = destinationsModel;
+    this.#offersModel = offersModel;
+  }
+
+  get points() {
+    return this.#pointsModel.points;
   }
 
   init() {
@@ -59,6 +68,8 @@ export default class TripPresenter {
     const pointPresenter = new PointPresenter({
       pointListContainer: this.#tripListComponent.element,
       pointsModel: this.#pointsModel,
+      destinationsModel: this.#destinationsModel,
+      offersModel: this.#offersModel,
       onDataChange: this.#handlePointChange,
       onFormOpen: this.#resetAllViews,
     });
