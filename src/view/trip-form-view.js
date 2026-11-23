@@ -1,3 +1,4 @@
+import he from 'he';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { capitalize, formatDateTime } from '../util.js';
 import { TYPES } from '../consts.js';
@@ -15,7 +16,7 @@ function createTypeItems(type) {
 }
 
 function createDestinationOptions(allDestination) {
-  return allDestination.map((item) => `<option value="${item.name}"></option>`).join('');
+  return allDestination.map((item) => `<option value="${he.encode(item.name)}"></option>`).join('');
 }
 
 function createPictures(pictures) {
@@ -26,7 +27,7 @@ function createPictures(pictures) {
   return `
   <div class="event__photos-container">
     <div class="event__photos-tape">
-      ${pictures.map((picture) => `<img class="event__photo" src="${picture.src}" alt="${picture.alt}" />`).join('')}
+      ${pictures.map((picture) => `<img class="event__photo" src="${he.encode(picture.src)}" alt="${he.encode(picture.description ?? picture.alt ?? '')}" />`).join('')}
     </div>
   </div>`;
 }
@@ -38,7 +39,7 @@ function createDestinationBlock(pointDestination) {
 
   return `<section class="event__section  event__section--destination">
       <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-      <p class="event__destination-description">${pointDestination.description}</p>
+      <p class="event__destination-description">${he.encode(pointDestination.description)}</p>
       ${createPictures(pointDestination.pictures)}
     </section>`;
 }
@@ -58,7 +59,7 @@ function createOffer(allOffers, selectedOfferIds) {
             data-offer-id="${offer.id}"
           />
           <label class="event__offer-label" for="event-offer-${offer.id}-1">
-            <span class="event__offer-title">${offer.title}</span>
+            <span class="event__offer-title">${he.encode(offer.title)}</span>
             &plus;&euro;&nbsp;
             <span class="event__offer-price">${offer.price}</span>
           </label>
@@ -132,8 +133,9 @@ function createTripFormTemplate(state) {
               id="event-destination-1"
               type="text"
               name="event-destination"
-              value="${destinationName}"
+              value="${he.encode(destinationName)}"
               list="destination-list-1"
+              required
             />
             <datalist id="destination-list-1">${createDestinationOptions(allDestination)}</datalist>
           </div>
@@ -167,11 +169,12 @@ function createTripFormTemplate(state) {
 export default class TripFormView extends AbstractStatefulView {
   #onFormSubmit = null;
   #onRollupClick = null;
+  #onDeleteClick = null;
   #getOffersByType = null;
   #startDatepicker = null;
   #endDatepicker = null;
 
-  constructor({ isEdit = false, point, allOffers, pointDestination, allDestination, onFormSubmit, onRollupClick, getOffersByType }) {
+  constructor({ isEdit = false, point, allOffers, pointDestination, allDestination, onFormSubmit, onRollupClick, onDeleteClick, getOffersByType }) {
     super();
     this._state = {
       isEdit,
@@ -183,6 +186,7 @@ export default class TripFormView extends AbstractStatefulView {
 
     this.#onFormSubmit = onFormSubmit;
     this.#onRollupClick = onRollupClick;
+    this.#onDeleteClick = onDeleteClick;
     this.#getOffersByType = getOffersByType;
 
     this._restoreHandlers();
@@ -233,6 +237,21 @@ export default class TripFormView extends AbstractStatefulView {
       this.rollupButton.addEventListener('click', this.#rollupClickHandler);
     }
 
+    const deleteButton = this.element.querySelector('.event__reset-btn');
+
+    if (deleteButton && this._state.isEdit) {
+      deleteButton.addEventListener('click', this.#deleteClickHandler);
+    }
+
+    const resetButton = this.element.querySelector('.event__reset-btn');
+    if (resetButton) {
+      if (this._state.isEdit) {
+        resetButton.addEventListener('click', this.#deleteClickHandler);
+      } else {
+        resetButton.addEventListener('click', this.#cancelClickHandler);
+      }
+    }
+
     this.#setDatepickers();
   }
 
@@ -250,8 +269,14 @@ export default class TripFormView extends AbstractStatefulView {
     const destination = this._state.allDestination.find((d) => d.name === name);
 
     if (!destination) {
+      evt.target.value = '';
+      this._setState({
+        point: { ...this._state.point, destination: null },
+        pointDestination: null,
+      });
       return;
     }
+
     this.updateElement({
       point: { ...this._state.point, destination: destination.id },
       pointDestination: destination,
@@ -270,19 +295,23 @@ export default class TripFormView extends AbstractStatefulView {
   };
 
   #priceChangeHandler = (evt) => {
-    const price = Number(evt.target.value);
+    const value = evt.target.value.replace(/\D/g, '');
+    evt.target.value = value;
 
+    const price = Number(value);
     if (Number.isNaN(price)) {
       return;
     }
-
-    this._setState({
-      point: { ...this._state.point, basePrice: price },
-    });
+    this._setState({ point: { ...this._state.point, basePrice: price } });
   };
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
+
+    if (!this._state.point.destination) {
+      this.shake();
+      return;
+    }
     this.#onFormSubmit?.(this._state.point);
   };
 
@@ -347,5 +376,15 @@ export default class TripFormView extends AbstractStatefulView {
     this._setState({
       point: { ...this._state.point, dateTo: userDate.toISOString() },
     });
+  };
+
+  #deleteClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#onDeleteClick?.(this._state.point);
+  };
+
+  #cancelClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#onRollupClick?.();
   };
 }

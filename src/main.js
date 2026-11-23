@@ -18,6 +18,7 @@ dayjs.extend(isSameOrAfter);
 const siteTripMainElement = document.querySelector('.trip-main');
 const siteTripFilterElement = document.querySelector('.trip-controls__filters');
 const siteTripEventsElement = document.querySelector('.trip-events');
+const newEventButton = document.querySelector('.trip-main__event-add-btn');
 
 const pointsModel = new PointsModel();
 const destinationsModel = new DestinationsModel();
@@ -41,3 +42,5 @@ render(new TripInfoView(), siteTripMainElement, RenderPosition.AFTERBEGIN);
 
 tripPresenter.init();
 filterPresenter.init();
+
+newEventButton.addEventListener('click', tripPresenter.handleNewPointClick);

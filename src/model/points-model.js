@@ -1,6 +1,5 @@
 import Observable from '../framework/observable.js';
 import { getRandomPoint } from '../mock/points.js';
-// import { UpdateType } from '../consts.js';
 
 const POINT_COUNT = 5;
 
@@ -11,9 +10,9 @@ export default class PointsModel extends Observable {
     return this.#points;
   }
 
-  setPoints(points) {
+  setPoints(updateType, points) {
     this.#points = points;
-    this._notify('SET_POINTS', points);
+    this._notify(updateType, points);
   }
 
   updatePoint(updateType, updatedPoint) {
@@ -21,7 +20,13 @@ export default class PointsModel extends Observable {
     this._notify(updateType, updatedPoint);
   }
 
-  addPoints(updateType, newPoint) {
+  addPoint(updateType, newPoint) {
     this.#points = [...this.#points, newPoint];
+    this._notify(updateType, newPoint);
+  }
+
+  deletePoint(updateType, pointId) {
+    this.#points = this.#points.filter((point) => point.id !== pointId);
+    this._notify(updateType, pointId);
   }
 }

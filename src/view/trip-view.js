@@ -1,3 +1,5 @@
+import he from 'he';
+import { capitalize } from '../util.js';
 import AbstractView from '../framework/view/abstract-view.js';
 import { formatTime, formatDate, formatDateValue, formatDuration } from '../util.js';
 
@@ -28,7 +30,7 @@ function createTripTemplate({ point, offers, destination }) {
         <div class="event__type">
           <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon" />
         </div>
-        <h3 class="event__title">${type} ${destination.name}</h3>
+        <h3 class="event__title">${capitalize(type)} ${he.encode(destination?.name ?? '')}</h3>
         <div class="event__schedule">
           <p class="event__time">
             <time class="event__start-time" datetime="${dateFrom}">${formatTime(dateFrom)}</time>
