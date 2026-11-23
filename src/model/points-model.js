@@ -1,32 +1,54 @@
 import Observable from '../framework/observable.js';
-import { getRandomPoint } from '../mock/points.js';
-
-const POINT_COUNT = 5;
+import { UpdateType, Messages } from '../consts.js';
+import { adaptPointToClient } from '../api/adapter.js';
 
 export default class PointsModel extends Observable {
-  #points = Array.from({ length: POINT_COUNT }, getRandomPoint);
+  #points = [];
+  #pointsApiService = null;
+  #isFailed = false;
+
+  constructor({ pointsApiService }) {
+    super();
+    this.#pointsApiService = pointsApiService;
+  }
 
   get points() {
     return this.#points;
   }
 
-  setPoints(updateType, points) {
-    this.#points = points;
-    this._notify(updateType, points);
+  get isFailed() {
+    return this.#isFailed;
   }
 
-  updatePoint(updateType, updatedPoint) {
-    this.#points = this.#points.map((point) => (point.id === updatedPoint.id ? updatedPoint : point));
-    this._notify(updateType, updatedPoint);
+  async init() {
+    try {
+      const points = await this.#pointsApiService.points;
+      this.#points = points.map(adaptPointToClient);
+      this.#isFailed = false;
+    } catch (error) {
+      this.#points = [];
+      this.#isFailed = true;
+    }
+
+    this._notify(UpdateType.INIT);
   }
 
-  addPoint(updateType, newPoint) {
-    this.#points = [...this.#points, newPoint];
-    this._notify(updateType, newPoint);
-  }
+  async updatePoint(updateType, updatedPoint) {
+    const index = this.#points.findIndex((point) => point.id === updatedPoint.id);
 
-  deletePoint(updateType, pointId) {
-    this.#points = this.#points.filter((point) => point.id !== pointId);
-    this._notify(updateType, pointId);
+    if (index === -1) {
+      throw new Error(Messages.UNEXISTING_POINT);
+    }
+
+    try {
+      const response = await this.#pointsApiService.updatePoint(updatedPoint);
+      const updated = adaptPointToClient(response);
+
+      this.#points = [...this.#points.slice(0, index), updated, ...this.#points.slice(index + 1)];
+
+      this._notify(updateType, updated);
+    } catch (error) {
+      throw new Error(Messages.NO_UPDATE);
+    }
   }
 }
