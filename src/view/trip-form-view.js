@@ -167,11 +167,12 @@ function createTripFormTemplate(state) {
 export default class TripFormView extends AbstractStatefulView {
   #onFormSubmit = null;
   #onRollupClick = null;
+  #onDeleteClick = null;
   #getOffersByType = null;
   #startDatepicker = null;
   #endDatepicker = null;
 
-  constructor({ isEdit = false, point, allOffers, pointDestination, allDestination, onFormSubmit, onRollupClick, getOffersByType }) {
+  constructor({ isEdit = false, point, allOffers, pointDestination, allDestination, onFormSubmit, onRollupClick, onDeleteClick, getOffersByType }) {
     super();
     this._state = {
       isEdit,
@@ -183,6 +184,7 @@ export default class TripFormView extends AbstractStatefulView {
 
     this.#onFormSubmit = onFormSubmit;
     this.#onRollupClick = onRollupClick;
+    this.#onDeleteClick = onDeleteClick;
     this.#getOffersByType = getOffersByType;
 
     this._restoreHandlers();
@@ -231,6 +233,12 @@ export default class TripFormView extends AbstractStatefulView {
 
     if (this.rollupButton) {
       this.rollupButton.addEventListener('click', this.#rollupClickHandler);
+    }
+
+    const deleteButton = this.element.querySelector('.event__reset-btn');
+
+    if (deleteButton && this._state.isEdit) {
+      deleteButton.addEventListener('click', this.#deleteClickHandler);
     }
 
     this.#setDatepickers();
@@ -347,5 +355,10 @@ export default class TripFormView extends AbstractStatefulView {
     this._setState({
       point: { ...this._state.point, dateTo: userDate.toISOString() },
     });
+  };
+
+  #deleteClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#onDeleteClick?.(this._state.point);
   };
 }

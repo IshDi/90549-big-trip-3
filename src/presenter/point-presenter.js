@@ -1,4 +1,5 @@
 import { render, replace, remove } from '../framework/render.js';
+import { UserAction, UpdateType } from '../consts.js';
 import TripFormView from '../view/trip-form-view.js';
 import TripView from '../view/trip-view.js';
 
@@ -62,12 +63,12 @@ export default class PointPresenter {
       offers: this.#offersModel.getById(this.#eventPoint.type, this.#eventPoint.offers),
       destination: this.#destinationsModel.getById(this.#eventPoint.destination),
       onRollupClick: () => this.#replacePointToForm(),
-      onFavoriteClick: this.#handleFavoriteClick,
+      onFavoriteClick: this.#favoriteClickHandler,
     });
   }
 
-  #handleFavoriteClick = () => {
-    this.#handleDataChange?.({
+  #favoriteClickHandler = () => {
+    this.#handleDataChange?.(UserAction.UPDATE_POINT, UpdateType.PATCH, {
       ...this.#eventPoint,
       isFavorite: !this.#eventPoint.isFavorite,
     });
@@ -83,10 +84,14 @@ export default class PointPresenter {
       pointDestination: this.#destinationsModel.getById(this.#eventPoint.destination),
       allDestination: this.#destinationsModel.destinations,
       onFormSubmit: (updatedPoint) => {
-        this.#handleDataChange?.(updatedPoint);
+        this.#handleDataChange?.(UserAction.UPDATE_POINT, UpdateType.MINOR, updatedPoint);
         this.#replaceFormToPoint();
       },
       onRollupClick: () => this.#replaceFormToPoint(),
+      onDeleteClick: (point) => {
+        this.#handleDataChange?.(UserAction.DELETE_POINT, UpdateType.MINOR, point);
+        this.#replaceFormToPoint();
+      },
       getOffersByType: (type) => this.#offersModel.getByType(type),
     });
 
@@ -102,6 +107,7 @@ export default class PointPresenter {
 
     this.#pointComponent = this.#createPointComponent();
     replace(this.#pointComponent, this.#formComponent);
+    this.#formComponent.removeElement();
     this.#formComponent = null;
   }
 
