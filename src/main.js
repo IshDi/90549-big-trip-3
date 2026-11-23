@@ -1,3 +1,8 @@
+import 'flatpickr/dist/flatpickr.min.css';
+import dayjs from 'dayjs';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore.js';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter.js';
+
 import { render, RenderPosition } from './framework/render.js';
 import TripInfoView from './view/trip-info-view.js';
 import TripPresenter from './presenter/trip-presenter.js';
@@ -6,6 +11,9 @@ import PointsModel from './model/points-model.js';
 import DestinationsModel from './model/destinations-model.js';
 import OffersModel from './model/offers-model.js';
 import FilterModel from './model/filter-model.js';
+
+dayjs.extend(isSameOrBefore);
+dayjs.extend(isSameOrAfter);
 
 const siteTripMainElement = document.querySelector('.trip-main');
 const siteTripFilterElement = document.querySelector('.trip-controls__filters');

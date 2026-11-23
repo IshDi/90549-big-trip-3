@@ -2,7 +2,6 @@ import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { capitalize, formatDateTime } from '../util.js';
 import { TYPES } from '../consts.js';
 import flatpickr from 'flatpickr';
-import 'flatpickr/dist/flatpickr.min.css';
 
 function createTypeItems(type) {
   return TYPES.map(

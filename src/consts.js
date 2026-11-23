@@ -1,9 +1,4 @@
 import dayjs from 'dayjs';
-import isSameOrBefore from 'dayjs/plugin/isSameOrBefore.js';
-import isSameOrAfter from 'dayjs/plugin/isSameOrAfter.js';
-
-dayjs.extend(isSameOrBefore);
-dayjs.extend(isSameOrAfter);
 
 const TYPES = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
 
@@ -40,10 +35,16 @@ const SortType = {
 };
 
 const UpdateType = {
-  PATCH: 'PATCH',
-  MINOR: 'MINOR',
-  MAJOR: 'MAJOR',
-  INIT: 'INIT',
+  PATCH: 'PATCH', // точечное изменение формы (звезда)
+  MINOR: 'MINOR', // изменение списка
+  MAJOR: 'MAJOR', // изменение фильтра/сортировка
+  INIT: 'INIT', // первичная загрузка
+};
+
+const UserAction = {
+  UPDATE_POINT: 'UPDATE_POINT',
+  ADD_POINT: 'ADD_POINT',
+  DELETE_POINT: 'DELETE_POINT',
 };
 
 const FilterType = {
@@ -67,4 +68,4 @@ const NoPointsText = {
   [FilterType.PAST]: 'There are no past events now',
 };
 
-export { TYPES, SortType, FilterType, UpdateType, FilterPoints, NoPointsText };
+export { TYPES, SortType, FilterType, UpdateType, UserAction, FilterPoints, NoPointsText };
