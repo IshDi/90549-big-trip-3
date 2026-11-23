@@ -68,4 +68,11 @@ const NoPointsText = {
   [FilterType.PAST]: 'There are no past events now',
 };
 
-export { TYPES, SortType, FilterType, UpdateType, UserAction, FilterPoints, NoPointsText };
+const Messages = {
+  FAILED: 'Failed to load latest route information',
+  UNEXISTING_POINT: 'Cannot update unexisting point',
+  NO_UPDATE: 'Cannot update point',
+  LOAD: 'Loading...',
+};
+
+export { TYPES, SortType, FilterType, UpdateType, UserAction, FilterPoints, NoPointsText, Messages };
