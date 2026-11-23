@@ -1,4 +1,4 @@
-export const mockDescriptions = [
+export const mockDestinations = [
   {
     id: '395712a8-a88d-4559-ab6b-69963e9433d9',
     description: 'Amsterdam - with an embankment of a mighty river as a centre of attraction',

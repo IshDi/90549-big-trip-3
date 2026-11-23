@@ -16,7 +16,7 @@ const formatDuration = (dateFrom, dateTo) => {
   const diffMinutes = dayjs(dateTo).diff(dayjs(dateFrom), 'minute');
 
   const days = Math.floor(diffMinutes / (60 * 24));
-  const hours = Math.floor(diffMinutes / 60);
+  const hours = Math.floor((diffMinutes % (60 * 24)) / 60);
   const minutes = diffMinutes % 60;
 
   const parts = [];
