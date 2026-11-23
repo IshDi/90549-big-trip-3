@@ -1,4 +1,4 @@
-import { render, remove } from '../framework/render.js';
+import { render, remove, RenderPosition } from '../framework/render.js';
 import SortView from '../view/sort-view.js';
 import TripListView from '../view/trip-list-view.js';
 import NoPointsView from '../view/no-points-view.js';
@@ -42,6 +42,10 @@ export default class TripPresenter {
   }
 
   handleNewPointClick = () => {
+    if (this.#noPointsComponent) {
+      remove(this.#noPointsComponent);
+      this.#noPointsComponent = null;
+    }
     this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
     this.#currentSortType = SortType.DAY.type;
     this.#resetAllViews();
@@ -74,7 +78,9 @@ export default class TripPresenter {
     });
 
     document.addEventListener('keydown', this.#handleNewPointEsc);
-    render(this.#newPointComponent, this.#tripContainet);
+
+    const container = this.#eventListPoints.length > 0 ? this.#tripListComponent.element : this.#tripContainet;
+    render(this.#newPointComponent, container, RenderPosition.AFTERBEGIN);
 
     const button = document.querySelector('.trip-main__event-add-btn');
     if (button) {
@@ -162,7 +168,6 @@ export default class TripPresenter {
     }
 
     this.#sortPoints(this.#currentSortType);
-
     this.#renderSort();
     this.#renderPointList();
     this.#renderPoints();
@@ -212,15 +217,6 @@ export default class TripPresenter {
     }
   }
 
-  #handlePointChange = (updateType, updatedPoint) => {
-    this.#pointsModel.updatePoint(updateType, updatedPoint);
-    this.#eventListPoints = [...this.#pointsModel.points];
-    this.#sortPoints(this.#currentSortType);
-    this.#clearPointList();
-    this.#renderPointList();
-    this.#renderPoints();
-  };
-
   #handleSortTypeChange = (sortType) => {
     if (this.#currentSortType === sortType) {
       return;
@@ -228,6 +224,8 @@ export default class TripPresenter {
 
     this.#sortPoints(sortType);
     this.#clearPointList();
+    remove(this.#sortComponent);
+    this.#renderSort();
     this.#renderPointList();
     this.#renderPoints();
   };

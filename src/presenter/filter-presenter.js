@@ -37,8 +37,12 @@ export default class FilterPresenter {
       return;
     }
 
-    replace(this.#filterComponent, prevFilterComponent);
-    remove(prevFilterComponent);
+    if (this.#filterContainer.contains(prevFilterComponent.element)) {
+      replace(this.#filterComponent, prevFilterComponent);
+      remove(prevFilterComponent);
+    } else {
+      render(this.#filterComponent, this.#filterContainer);
+    }
   }
 
   #handleModelChange = () => {

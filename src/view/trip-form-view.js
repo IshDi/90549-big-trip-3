@@ -241,6 +241,15 @@ export default class TripFormView extends AbstractStatefulView {
       deleteButton.addEventListener('click', this.#deleteClickHandler);
     }
 
+    const resetButton = this.element.querySelector('.event__reset-btn');
+    if (resetButton) {
+      if (this._state.isEdit) {
+        resetButton.addEventListener('click', this.#deleteClickHandler);
+      } else {
+        resetButton.addEventListener('click', this.#cancelClickHandler);
+      }
+    }
+
     this.#setDatepickers();
   }
 
@@ -360,5 +369,10 @@ export default class TripFormView extends AbstractStatefulView {
   #deleteClickHandler = (evt) => {
     evt.preventDefault();
     this.#onDeleteClick?.(this._state.point);
+  };
+
+  #cancelClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#onRollupClick?.();
   };
 }
