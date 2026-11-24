@@ -429,13 +429,16 @@ export default class TripFormView extends AbstractStatefulView {
 
   shake(callback) {
     this.element.classList.add('shake');
-    this.element.addEventListener(
-      'animationend',
-      () => {
-        this.element.classList.remove('shake');
-        callback?.();
-      },
-      { once: true },
-    );
+    let isReset = false;
+    const resetShake = () => {
+      if (isReset) {
+        return;
+      }
+      isReset = true;
+      this.element.classList.remove('shake');
+      callback?.();
+    };
+    this.element.addEventListener('animationend', resetShake, { once: true });
+    setTimeout(resetShake, 350);
   }
 }

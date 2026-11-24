@@ -103,11 +103,7 @@ export default class TripPresenter {
         return;
       }
 
-      const text = this.#hasEverRendered ? NoPointsText[this.#filterModel.filter] : NoPointsText[FilterType.EVERYTHING];
-
-      this.#noPointsComponent = new MessageView({ text });
-      render(this.#noPointsComponent, this.#tripContainer);
-      this.#hasEverRendered = true;
+      this.#renderNoPoints();
       return;
     }
 
@@ -119,6 +115,8 @@ export default class TripPresenter {
     if (this.#newPointComponent) {
       render(this.#newPointComponent, this.#tripListComponent.element, RenderPosition.AFTERBEGIN);
     }
+
+    this.#hasEverRendered = true;
   }
 
   #clearTripEvents() {
@@ -283,10 +281,13 @@ export default class TripPresenter {
   }
 
   #renderNoPoints() {
+    if (this.#noPointsComponent) {
+      remove(this.#noPointsComponent);
+      this.#noPointsComponent = null;
+    }
     const filterType = this.#hasEverRendered ? this.#filterModel.filter : FilterType.EVERYTHING;
     this.#noPointsComponent = new MessageView({ text: NoPointsText[filterType] });
     render(this.#noPointsComponent, this.#tripContainer);
-    this.#hasEverRendered = true;
   }
 
   #renderPointList() {
