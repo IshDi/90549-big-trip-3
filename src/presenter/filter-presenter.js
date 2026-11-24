@@ -1,17 +1,21 @@
 import { render, replace, remove } from '../framework/render.js';
 import { FilterType, UpdateType } from '../consts.js';
 import FilterView from '../view/filter-view.js';
+import { getFilterAvailability } from '../util.js';
 
 export default class FilterPresenter {
   #filterContainer = null;
   #filterModel = null;
+  #pointsModel = null;
   #filterComponent = null;
 
-  constructor({ filterContainer, filterModel }) {
+  constructor({ filterContainer, filterModel, pointsModel }) {
     this.#filterContainer = filterContainer;
     this.#filterModel = filterModel;
+    this.#pointsModel = pointsModel;
 
     this.#filterModel.addObserver(this.#handleModelChange);
+    this.#pointsModel.addObserver(this.#handleModelChange);
   }
 
   get filters() {
@@ -29,6 +33,7 @@ export default class FilterPresenter {
     this.#filterComponent = new FilterView({
       filters: this.filters,
       currentFilterType: this.#filterModel.filter,
+      filterAvailability: getFilterAvailability(this.#pointsModel.points),
       onFilterTypeChange: this.#handleFilterTypeChange,
     });
 
@@ -45,7 +50,15 @@ export default class FilterPresenter {
     }
   }
 
-  #handleModelChange = () => {
+  #handleModelChange = (updateType) => {
+    if (updateType === UpdateType.PATCH) {
+      return;
+    }
+    const availability = getFilterAvailability(this.#pointsModel.points);
+    if (!availability[this.#filterModel.filter] && this.#filterModel.filter !== FilterType.EVERYTHING) {
+      this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+      return;
+    }
     this.init();
   };
 

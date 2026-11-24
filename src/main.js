@@ -3,15 +3,14 @@ import dayjs from 'dayjs';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore.js';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter.js';
 
-import { render, RenderPosition } from './framework/render.js';
 import BigTripApiService from './api/big-trip-api-service.js';
 import PointsModel from './model/points-model.js';
 import DestinationsModel from './model/destinations-model.js';
 import OffersModel from './model/offers-model.js';
 import FilterModel from './model/filter-model.js';
+import TripInfoPresenter from './presenter/trip-info-presenter.js';
 import TripPresenter from './presenter/trip-presenter.js';
 import FilterPresenter from './presenter/filter-presenter.js';
-import TripInfoView from './view/trip-info-view.js';
 
 dayjs.extend(isSameOrBefore);
 dayjs.extend(isSameOrAfter);
@@ -31,7 +30,12 @@ const destinationsModel = new DestinationsModel({ apiService });
 const offersModel = new OffersModel({ apiService });
 const filterModel = new FilterModel();
 
-window.pointsModel = pointsModel;
+const tripInfoPresenter = new TripInfoPresenter({
+  tripInfoContainer: siteTripMainElement,
+  pointsModel,
+  destinationsModel,
+  offersModel,
+});
 
 const tripPresenter = new TripPresenter({
   tripContainet: siteTripEventsElement,
@@ -44,12 +48,12 @@ const tripPresenter = new TripPresenter({
 const filterPresenter = new FilterPresenter({
   filterContainer: siteTripFilterElement,
   filterModel,
+  pointsModel,
 });
-
-render(new TripInfoView(), siteTripMainElement, RenderPosition.AFTERBEGIN);
 
 tripPresenter.init();
 filterPresenter.init();
+tripInfoPresenter.init();
 
 Promise.all([pointsModel.init(), destinationsModel.init(), offersModel.init()]).finally(() => {
   pointsModel.notifyInit();
