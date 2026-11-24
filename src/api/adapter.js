@@ -10,7 +10,6 @@ export const adaptPointToClient = (point) => ({
 });
 
 export const adaptPointToServer = (point) => ({
-  ['id']: point.id,
   ['base_price']: point.basePrice,
   ['date_from']: point.dateFrom,
   ['date_to']: point.dateTo,

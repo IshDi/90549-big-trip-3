@@ -4,15 +4,18 @@ const getRandomArrayElement = (items) => items[Math.floor(Math.random() * items.
 
 const capitalize = (type) => type.charAt(0).toUpperCase() + type.slice(1);
 
-const formatDateTime = (isoString) => dayjs(isoString).format('DD/MM/YY HH:mm');
+const formatDateTime = (isoString) => (isoString ? dayjs(isoString).format('DD/MM/YY HH:mm') : '');
 
-const formatTime = (isoString) => dayjs(isoString).format('HH:mm');
+const formatTime = (isoString) => (isoString ? dayjs(isoString).format('HH:mm') : '');
 
-const formatDate = (isoString) => dayjs(isoString).format('MMM DD').toUpperCase();
+const formatDate = (isoString) => (isoString ? dayjs(isoString).format('MMM DD').toUpperCase() : '');
 
-const formatDateValue = (isoString) => dayjs(isoString).format('YYYY-MM-DD');
+const formatDateValue = (isoString) => (isoString ? dayjs(isoString).format('YYYY-MM-DD') : '');
 
 const formatDuration = (dateFrom, dateTo) => {
+  if (!dateFrom || !dateTo) {
+    return '';
+  }
   const diffMinutes = dayjs(dateTo).diff(dayjs(dateFrom), 'minute');
 
   const days = Math.floor(diffMinutes / (60 * 24));

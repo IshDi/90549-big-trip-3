@@ -1,7 +1,12 @@
 import ApiService from '../framework/api-service.js';
 import { adaptPointToServer } from './adapter.js';
 
-const Method = { GET: 'GET', PUT: 'PUT' };
+const Method = {
+  GET: 'GET',
+  PUT: 'PUT',
+  POST: 'POST',
+  DELETE: 'DELETE',
+};
 
 export default class BigTripApiService extends ApiService {
   get points() {
@@ -25,5 +30,25 @@ export default class BigTripApiService extends ApiService {
     });
 
     return ApiService.parseResponse(response);
+  }
+
+  async addPoint(point) {
+    const response = await this._load({
+      url: 'points',
+      method: Method.POST,
+      body: JSON.stringify(adaptPointToServer(point)),
+      headers: new Headers({ 'Content-Type': 'application/json' }),
+    });
+
+    return ApiService.parseResponse(response);
+  }
+
+  async deletePoint(point) {
+    const response = await this._load({
+      url: `points/${point.id}`,
+      method: Method.DELETE,
+    });
+
+    return response;
   }
 }

@@ -4,12 +4,20 @@ import { capitalize, formatDateTime } from '../util.js';
 import { TYPES } from '../consts.js';
 import flatpickr from 'flatpickr';
 
-function createTypeItems(type) {
+function createTypeItems(type, isDisabled = false) {
   return TYPES.map(
     (item) =>
       /* HTML */
       `<div class="event__type-item">
-        <input id="event-type-${item}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${item}" ${item === type ? 'checked' : ''} />
+        <input
+          id="event-type-${item}-1"
+          class="event__type-input  visually-hidden"
+          type="radio"
+          name="event-type"
+          value="${item}"
+          ${item === type ? 'checked' : ''}
+          ${isDisabled ? 'disabled' : ''}
+        />
         <label class="event__type-label  event__type-label--${item}" for="event-type-${item}-1">${capitalize(item)}</label>
       </div>`,
   ).join('');
@@ -44,7 +52,7 @@ function createDestinationBlock(pointDestination) {
     </section>`;
 }
 
-function createOffer(allOffers, selectedOfferIds) {
+function createOffer(allOffers, selectedOfferIds, isDisabled = false) {
   return allOffers
     .map(
       (offer) =>
@@ -57,6 +65,7 @@ function createOffer(allOffers, selectedOfferIds) {
             name="event-offer-${offer.id}"
             ${selectedOfferIds.includes(offer.id) ? 'checked' : ''}
             data-offer-id="${offer.id}"
+            ${isDisabled ? 'disabled' : ''}
           />
           <label class="event__offer-label" for="event-offer-${offer.id}-1">
             <span class="event__offer-title">${he.encode(offer.title)}</span>
@@ -68,7 +77,7 @@ function createOffer(allOffers, selectedOfferIds) {
     .join('');
 }
 
-function createOffersBlock(allOffers, selectedOfferIds) {
+function createOffersBlock(allOffers, selectedOfferIds, isDisabled = false) {
   if (!allOffers.length) {
     return '';
   }
@@ -76,13 +85,13 @@ function createOffersBlock(allOffers, selectedOfferIds) {
   return `<section class="event__section  event__section--offers">
     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
       <div class="event__available-offers">
-       ${createOffer(allOffers, selectedOfferIds)}
+       ${createOffer(allOffers, selectedOfferIds, isDisabled)}
       </div>
     </section>`;
 }
 
-function createDetailsBlock(pointDestination, allOffers, selectedOfferIds) {
-  const offers = createOffersBlock(allOffers, selectedOfferIds);
+function createDetailsBlock(pointDestination, allOffers, selectedOfferIds, isDisabled = false) {
+  const offers = createOffersBlock(allOffers, selectedOfferIds, isDisabled);
   const destination = createDestinationBlock(pointDestination);
 
   if (!offers && !destination) {
@@ -93,18 +102,25 @@ function createDetailsBlock(pointDestination, allOffers, selectedOfferIds) {
 }
 
 function createTripFormTemplate(state) {
-  const { isEdit, point, allOffers, pointDestination, allDestination } = state;
+  const { isEdit, point, allOffers, pointDestination, allDestination, isSaving, isDeleting, isDisabled } = state;
   const { type, basePrice, dateFrom, dateTo, offers: selectedOfferIds } = point;
 
-  const resetText = isEdit ? 'Delete' : 'Cancel';
+  const saveText = isSaving ? 'Saving...' : 'Save';
+
+  let resetText = 'Cancel';
+
+  if (isEdit) {
+    resetText = isDeleting ? 'Deleting...' : 'Delete';
+  }
 
   const rollupButton = isEdit
-    ? `<button class="event__rollup-btn" type="button">
+    ? `<button class="event__rollup-btn" type="button" ${isDisabled ? 'disabled' : ''}>
          <span class="visually-hidden">Open event</span>
        </button>`
     : '';
 
   const destinationName = pointDestination?.name ?? '';
+  const disabledAttr = isDisabled ? 'disabled' : '';
 
   return (
     /* HTML */
@@ -116,12 +132,12 @@ function createTripFormTemplate(state) {
               <span class="visually-hidden">Choose event type</span>
               <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon" />
             </label>
-            <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox" />
+            <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox" ${disabledAttr} />
 
             <div class="event__type-list">
               <fieldset class="event__type-group">
                 <legend class="visually-hidden">Event type</legend>
-                ${createTypeItems(type)}
+                ${createTypeItems(type, isDisabled)}
               </fieldset>
             </div>
           </div>
@@ -136,16 +152,17 @@ function createTripFormTemplate(state) {
               value="${he.encode(destinationName)}"
               list="destination-list-1"
               required
+              ${disabledAttr}
             />
             <datalist id="destination-list-1">${createDestinationOptions(allDestination)}</datalist>
           </div>
 
           <div class="event__field-group  event__field-group--time">
             <label class="visually-hidden" for="event-start-time-1">From</label>
-            <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${formatDateTime(dateFrom)}" />
+            <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${formatDateTime(dateFrom)}" ${disabledAttr} />
             &mdash;
             <label class="visually-hidden" for="event-end-time-1">To</label>
-            <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${formatDateTime(dateTo)}" />
+            <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${formatDateTime(dateTo)}" ${disabledAttr} />
           </div>
 
           <div class="event__field-group  event__field-group--price">
@@ -153,14 +170,14 @@ function createTripFormTemplate(state) {
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}" />
+            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}" ${disabledAttr} />
           </div>
 
-          <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-          <button class="event__reset-btn" type="reset">${resetText}</button>
+          <button class="event__save-btn  btn  btn--blue" type="submit" ${disabledAttr}>${saveText}</button>
+          <button class="event__reset-btn" type="button" ${disabledAttr}>${resetText}</button>
           ${rollupButton}
         </header>
-        ${createDetailsBlock(pointDestination, allOffers, selectedOfferIds)}
+        ${createDetailsBlock(pointDestination, allOffers, selectedOfferIds, isDisabled)}
       </form>
     </li>`
   );
@@ -182,6 +199,9 @@ export default class TripFormView extends AbstractStatefulView {
       allOffers,
       pointDestination,
       allDestination,
+      isSaving: false,
+      isDeleting: false,
+      isDisabled: false,
     };
 
     this.#onFormSubmit = onFormSubmit;
@@ -202,6 +222,18 @@ export default class TripFormView extends AbstractStatefulView {
 
   get rollupButton() {
     return this.element.querySelector('.event__rollup-btn');
+  }
+
+  updateElement(update) {
+    if (this.#startDatepicker) {
+      this.#startDatepicker.destroy();
+      this.#startDatepicker = null;
+    }
+    if (this.#endDatepicker) {
+      this.#endDatepicker.destroy();
+      this.#endDatepicker = null;
+    }
+    super.updateElement(update);
   }
 
   removeElement() {
@@ -235,12 +267,6 @@ export default class TripFormView extends AbstractStatefulView {
 
     if (this.rollupButton) {
       this.rollupButton.addEventListener('click', this.#rollupClickHandler);
-    }
-
-    const deleteButton = this.element.querySelector('.event__reset-btn');
-
-    if (deleteButton && this._state.isEdit) {
-      deleteButton.addEventListener('click', this.#deleteClickHandler);
     }
 
     const resetButton = this.element.querySelector('.event__reset-btn');
@@ -308,10 +334,20 @@ export default class TripFormView extends AbstractStatefulView {
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
 
+    if (this._state.isDisabled || this._state.isSaving || this._state.isDeleting) {
+      return;
+    }
+
     if (!this._state.point.destination) {
       this.shake();
       return;
     }
+
+    if (new Date(this._state.point.dateFrom) >= new Date(this._state.point.dateTo)) {
+      this.shake();
+      return;
+    }
+
     this.#onFormSubmit?.(this._state.point);
   };
 
@@ -323,17 +359,27 @@ export default class TripFormView extends AbstractStatefulView {
   #setDatepickers() {
     const startInput = this.element.querySelector('#event-start-time-1');
     const endInput = this.element.querySelector('#event-end-time-1');
+    const safeDate = (value) => {
+      if (!value) {
+        return undefined;
+      }
+      const date = new Date(value);
+      return isNaN(date.getTime()) ? undefined : date;
+    };
+
+    const startDate = safeDate(this._state.point.dateFrom);
+    const endDate = safeDate(this._state.point.dateTo);
 
     this.#startDatepicker = flatpickr(startInput, {
       dateFormat: 'd/m/y H:i',
-      defaultDate: this._state.point.dateFrom,
+      defaultDate: startDate,
       enableTime: true,
       onChange: this.#startDateChangeHandler,
     });
 
     this.#endDatepicker = flatpickr(endInput, {
       dateFormat: 'd/m/y H:i',
-      defaultDate: this._state.point.dateTo,
+      defaultDate: endDate,
       enableTime: true,
       minDate: this._state.point.dateFrom,
       onChange: this.#endDateChangeHandler,
@@ -380,6 +426,9 @@ export default class TripFormView extends AbstractStatefulView {
 
   #deleteClickHandler = (evt) => {
     evt.preventDefault();
+    if (this._state.isDisabled || this._state.isDeleting || this._state.isSaving) {
+      return;
+    }
     this.#onDeleteClick?.(this._state.point);
   };
 
@@ -387,4 +436,16 @@ export default class TripFormView extends AbstractStatefulView {
     evt.preventDefault();
     this.#onRollupClick?.();
   };
+
+  shake(callback) {
+    this.element.classList.add('shake');
+    this.element.addEventListener(
+      'animationend',
+      () => {
+        this.element.classList.remove('shake');
+        callback?.();
+      },
+      { once: true },
+    );
+  }
 }

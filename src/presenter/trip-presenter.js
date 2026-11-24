@@ -1,4 +1,5 @@
 import { render, remove, RenderPosition } from '../framework/render.js';
+import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import SortView from '../view/sort-view.js';
 import TripListView from '../view/trip-list-view.js';
 import MessageView from '../view/message-view.js';
@@ -6,6 +7,10 @@ import TripFormView from '../view/trip-form-view.js';
 import PointPresenter from './point-presenter.js';
 import { SortType, FilterPoints, FilterType, UpdateType, UserAction, NoPointsText, Messages } from '../consts.js';
 
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
+};
 export default class TripPresenter {
   #tripListComponent = new TripListView();
   #sortComponent = null;
@@ -43,6 +48,11 @@ export default class TripPresenter {
   init() {
     this.#renderTripEvents();
   }
+
+  #uiBlocker = new UiBlocker({
+    lowerLimit: TimeLimit.LOWER_LIMIT,
+    upperLimit: TimeLimit.UPPER_LIMIT,
+  });
 
   #handleModelChange = (updateType, payload) => {
     switch (updateType) {
@@ -84,7 +94,6 @@ export default class TripPresenter {
       return;
     }
     this.#eventListPoints = [...this.points];
-
     if (this.#eventListPoints.length === 0) {
       this.#noPointsComponent = new MessageView({
         text: NoPointsText[this.#filterModel.filter],
@@ -142,7 +151,6 @@ export default class TripPresenter {
       allDestination: this.#destinationsModel.destinations,
       onFormSubmit: (newPoint) => {
         this.#handleViewAction(UserAction.ADD_POINT, UpdateType.MINOR, newPoint);
-        this.#destroyNewPointForm();
       },
       onRollupClick: () => this.#destroyNewPointForm(),
       getOffersByType: (type) => this.#offersModel.getByType(type),
@@ -178,18 +186,56 @@ export default class TripPresenter {
     }
   }
 
-  #handleViewAction = (actionType, updateType, update) => {
+  #handleViewAction = async (actionType, updateType, update) => {
+    this.#uiBlocker.block();
+
     switch (actionType) {
-      case UserAction.UPDATE_POINT:
-        this.#pointsModel.updatePoint(updateType, update);
+      case UserAction.UPDATE_POINT: {
+        const presenter = this.#pointPresenters.get(update.id);
+        presenter?.setSaving();
+        try {
+          await this.#pointsModel.updatePoint(updateType, update);
+        } catch {
+          presenter?.setAborting();
+        }
         break;
-      case UserAction.ADD_POINT:
-        this.#pointsModel.addPoint(updateType, update);
+      }
+
+      case UserAction.ADD_POINT: {
+        this.#newPointComponent?.updateElement({
+          isDisabled: true,
+          isSaving: true,
+        });
+        try {
+          await this.#pointsModel.addPoint(updateType, update);
+          this.#destroyNewPointForm();
+        } catch {
+          const form = this.#newPointComponent;
+          if (form) {
+            form.shake(() =>
+              form.updateElement({
+                isDisabled: false,
+                isSaving: false,
+                isDeleting: false,
+              }),
+            );
+          }
+        }
         break;
-      case UserAction.DELETE_POINT:
-        this.#pointsModel.deletePoint(updateType, update.id);
+      }
+
+      case UserAction.DELETE_POINT: {
+        const presenter = this.#pointPresenters.get(update.id);
+        presenter?.setDeleting();
+        try {
+          await this.#pointsModel.deletePoint(updateType, update);
+        } catch {
+          presenter?.setAborting();
+        }
         break;
+      }
     }
+    this.#uiBlocker.unblock();
   };
 
   #sortPoints(sortType) {

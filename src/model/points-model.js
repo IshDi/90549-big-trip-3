@@ -29,8 +29,6 @@ export default class PointsModel extends Observable {
       this.#points = [];
       this.#isFailed = true;
     }
-
-    this._notify(UpdateType.INIT);
   }
 
   async updatePoint(updateType, updatedPoint) {
@@ -50,5 +48,38 @@ export default class PointsModel extends Observable {
     } catch (error) {
       throw new Error(Messages.NO_UPDATE);
     }
+  }
+
+  async addPoint(updateType, update) {
+    try {
+      const response = await this.#pointsApiService.addPoint(update);
+      const newPoint = adaptPointToClient(response);
+
+      this.#points = [newPoint, ...this.#points];
+      this._notify(updateType, newPoint);
+    } catch (error) {
+      throw new Error(Messages.NO_UPDATE);
+    }
+  }
+
+  async deletePoint(updateType, update) {
+    const index = this.#points.findIndex((point) => point.id === update.id);
+
+    if (index === -1) {
+      throw new Error(Messages.UNEXISTING_POINT);
+    }
+
+    try {
+      await this.#pointsApiService.deletePoint(update);
+
+      this.#points = [...this.#points.slice(0, index), ...this.#points.slice(index + 1)];
+      this._notify(updateType);
+    } catch (error) {
+      throw new Error(Messages.NO_UPDATE);
+    }
+  }
+
+  notifyInit() {
+    this._notify(UpdateType.INIT);
   }
 }

@@ -85,12 +85,10 @@ export default class PointPresenter {
       allDestination: this.#destinationsModel.destinations,
       onFormSubmit: (updatedPoint) => {
         this.#handleDataChange?.(UserAction.UPDATE_POINT, UpdateType.MINOR, updatedPoint);
-        this.#replaceFormToPoint();
       },
       onRollupClick: () => this.#replaceFormToPoint(),
       onDeleteClick: (point) => {
         this.#handleDataChange?.(UserAction.DELETE_POINT, UpdateType.MINOR, point);
-        this.#replaceFormToPoint();
       },
       getOffersByType: (type) => this.#offersModel.getByType(type),
     });
@@ -130,5 +128,40 @@ export default class PointPresenter {
 
   #unbindEscape() {
     document.removeEventListener('keydown', this.#onEscKeyDown);
+  }
+
+  setSaving() {
+    if (this.#formComponent) {
+      this.#formComponent.updateElement({
+        isDisabled: true,
+        isSaving: true,
+      });
+    }
+  }
+
+  setDeleting() {
+    if (this.#formComponent) {
+      this.#formComponent.updateElement({
+        isDisabled: true,
+        isDeleting: true,
+      });
+    }
+  }
+
+  setAborting() {
+    if (!this.#formComponent) {
+      this.#pointComponent?.shake?.();
+      return;
+    }
+
+    const resetFormState = () => {
+      this.#formComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#formComponent.shake(resetFormState);
   }
 }
