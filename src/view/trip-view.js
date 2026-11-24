@@ -102,4 +102,15 @@ export default class TripView extends AbstractView {
     evt.preventDefault();
     this.#handleFavoriteClick?.();
   };
+
+  shake() {
+    this.element.classList.add('shake');
+    this.element.addEventListener(
+      'animationend',
+      () => {
+        this.element.classList.remove('shake');
+      },
+      { once: true },
+    );
+  }
 }

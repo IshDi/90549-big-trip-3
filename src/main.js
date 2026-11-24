@@ -31,6 +31,8 @@ const destinationsModel = new DestinationsModel({ apiService });
 const offersModel = new OffersModel({ apiService });
 const filterModel = new FilterModel();
 
+window.pointsModel = pointsModel;
+
 const tripPresenter = new TripPresenter({
   tripContainet: siteTripEventsElement,
   pointsModel,
@@ -50,6 +52,7 @@ tripPresenter.init();
 filterPresenter.init();
 
 Promise.all([pointsModel.init(), destinationsModel.init(), offersModel.init()]).finally(() => {
+  pointsModel.notifyInit();
   if (newEventButton) {
     newEventButton.disabled = false;
   }
