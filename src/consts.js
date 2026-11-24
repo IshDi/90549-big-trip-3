@@ -75,4 +75,69 @@ const Messages = {
   LOAD: 'Loading...',
 };
 
-export { TYPES, SortType, FilterType, UpdateType, UserAction, FilterPoints, NoPointsText, Messages };
+const ButtonText = {
+  SAVE: 'Save',
+  SAVING: 'Saving...',
+  DELETE: 'Delete',
+  DELETING: 'Deleting...',
+  CANCEL: 'Cancel',
+};
+
+const ClassName = {
+  ROLLUP_BUTTON: 'event__rollup-btn',
+  FAVORITE_BUTTON: 'event__favorite-btn',
+  FAVORITE_ACTIVE: 'event__favorite-btn--active',
+  SHAKE: 'shake',
+  NEW_EVENT_BUTTON: 'trip-main__event-add-btn',
+};
+
+const DateFormat = {
+  DATE_TIME: 'DD/MM/YY HH:mm',
+  TIME: 'HH:mm',
+  DATE: 'MMM DD',
+  DATE_VALUE: 'YYYY-MM-DD',
+  TRIP_DATE: 'D MMM',
+  PICKER: 'd/m/y H:i',
+};
+
+const Url = {
+  POINTS: 'points',
+  DESTINATIONS: 'destinations',
+  OFFERS: 'offers',
+};
+
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
+};
+
+const Method = {
+  GET: 'GET',
+  PUT: 'PUT',
+  POST: 'POST',
+  DELETE: 'DELETE',
+};
+
+const DEFAULT_POINT_TYPE = 'flight';
+const MIN_TRIP_CITIES = 3;
+const COST_ZERO = 0;
+
+export {
+  TYPES,
+  SortType,
+  FilterType,
+  UpdateType,
+  UserAction,
+  FilterPoints,
+  NoPointsText,
+  Messages,
+  ButtonText,
+  ClassName,
+  DateFormat,
+  Url,
+  TimeLimit,
+  Method,
+  DEFAULT_POINT_TYPE,
+  MIN_TRIP_CITIES,
+  COST_ZERO,
+};
