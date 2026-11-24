@@ -23,6 +23,7 @@ export default class TripPresenter {
   #eventListPoints = [];
   #pointPresenters = new Map();
   #isLoading = true;
+  #hasEverRendered = false;
 
   constructor({ tripContainer, pointsModel, destinationsModel, offersModel, filterModel, newEventButtonElement }) {
     this.#tripContainer = tripContainer;
@@ -71,9 +72,13 @@ export default class TripPresenter {
         break;
       case UpdateType.INIT:
         this.#isLoading = false;
-        remove(this.#loadingComponent);
 
-        if (this.#pointsModel.isFailed) {
+        if (this.#loadingComponent) {
+          remove(this.#loadingComponent);
+          this.#loadingComponent = null;
+        }
+
+        if (this.#pointsModel.isFailed || this.#destinationsModel.isFailed || this.#offersModel.isFailed) {
           this.#failedComponent = new MessageView({
             text: Messages.FAILED,
           });
@@ -90,12 +95,19 @@ export default class TripPresenter {
       render(this.#loadingComponent, this.#tripContainer);
       return;
     }
+
     this.#eventListPoints = [...this.points];
+
     if (this.#eventListPoints.length === 0) {
-      this.#noPointsComponent = new MessageView({
-        text: NoPointsText[this.#filterModel.filter],
-      });
+      if (this.#newPointComponent) {
+        return;
+      }
+
+      const text = this.#hasEverRendered ? NoPointsText[this.#filterModel.filter] : NoPointsText[FilterType.EVERYTHING];
+
+      this.#noPointsComponent = new MessageView({ text });
       render(this.#noPointsComponent, this.#tripContainer);
+      this.#hasEverRendered = true;
       return;
     }
 
@@ -103,6 +115,10 @@ export default class TripPresenter {
     this.#renderSort();
     this.#renderPointList();
     this.#renderPoints();
+
+    if (this.#newPointComponent) {
+      render(this.#newPointComponent, this.#tripListComponent.element, RenderPosition.AFTERBEGIN);
+    }
   }
 
   #clearTripEvents() {
@@ -123,7 +139,11 @@ export default class TripPresenter {
       remove(this.#noPointsComponent);
       this.#noPointsComponent = null;
     }
-    this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+
+    if (this.#filterModel.filter !== FilterType.EVERYTHING) {
+      this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+    }
+
     this.#currentSortType = SortType.DAY.type;
     this.#resetAllViews();
 
@@ -158,9 +178,8 @@ export default class TripPresenter {
     const container = this.#eventListPoints.length > 0 ? this.#tripListComponent.element : this.#tripContainer;
     render(this.#newPointComponent, container, RenderPosition.AFTERBEGIN);
 
-    const button = document.querySelector('.trip-main__event-add-btn');
-    if (button) {
-      button.disabled = true;
+    if (this.#newEventButtonElement) {
+      this.#newEventButtonElement.disabled = true;
     }
   };
 
@@ -176,9 +195,11 @@ export default class TripPresenter {
       document.removeEventListener('keydown', this.#handleNewPointEsc);
       remove(this.#newPointComponent);
       this.#newPointComponent = null;
-      const button = document.querySelector('.trip-main__event-add-btn');
-      if (button) {
-        button.disabled = false;
+      if (this.#newEventButtonElement) {
+        this.#newEventButtonElement.disabled = false;
+      }
+      if (this.#pointsModel.points.length === 0) {
+        this.#renderNoPoints();
       }
     }
   }
@@ -220,6 +241,9 @@ export default class TripPresenter {
               }),
             );
           }
+          if (this.#newEventButtonElement) {
+            this.#newEventButtonElement.disabled = false;
+          }
         }
         break;
       }
@@ -256,6 +280,13 @@ export default class TripPresenter {
     });
 
     render(this.#sortComponent, this.#tripContainer);
+  }
+
+  #renderNoPoints() {
+    const filterType = this.#hasEverRendered ? this.#filterModel.filter : FilterType.EVERYTHING;
+    this.#noPointsComponent = new MessageView({ text: NoPointsText[filterType] });
+    render(this.#noPointsComponent, this.#tripContainer);
+    this.#hasEverRendered = true;
   }
 
   #renderPointList() {
@@ -302,5 +333,8 @@ export default class TripPresenter {
 
   #resetAllViews = () => {
     this.#pointPresenters.forEach((presenter) => presenter.resetView());
+    if (this.#newPointComponent) {
+      this.#destroyNewPointForm();
+    }
   };
 }

@@ -3,6 +3,7 @@ import Observable from '../framework/observable.js';
 export default class OffersModel extends Observable {
   #offers = [];
   #apiService = null;
+  #isFailed = false;
 
   constructor({ apiService }) {
     super();
@@ -13,11 +14,17 @@ export default class OffersModel extends Observable {
     return this.#offers;
   }
 
+  get isFailed() {
+    return this.#isFailed;
+  }
+
   async init() {
     try {
       this.#offers = await this.#apiService.offers;
+      this.#isFailed = false;
     } catch (error) {
       this.#offers = [];
+      this.#isFailed = true;
     }
   }
 
