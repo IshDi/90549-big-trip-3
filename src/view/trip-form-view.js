@@ -115,14 +115,15 @@ function createTripFormTemplate(state) {
     resetText = isDeleting ? DELETING : DELETE;
   }
 
-  const rollupButton = isEdit
-    ? `<button class="event__rollup-btn" type="button" ${isDisabled ? 'disabled' : ''}>
-         <span class="visually-hidden">Open event</span>
-       </button>`
-    : '';
-
-  const destinationName = pointDestination?.name ?? '';
+  const resetButtonDisabledAttr = isEdit && isDisabled ? 'disabled' : '';
   const disabledAttr = isDisabled ? 'disabled' : '';
+  const destinationName = pointDestination?.name ?? '';
+
+  const rollupButton = isEdit
+    ? `<button class="event__rollup-btn" type="button" aria-disabled="${isDisabled}">
+       <span class="visually-hidden">Open event</span>
+     </button>`
+    : '';
 
   return (
     /* HTML */
@@ -153,7 +154,6 @@ function createTripFormTemplate(state) {
               name="event-destination"
               value="${he.encode(destinationName)}"
               list="destination-list-1"
-              required
               ${disabledAttr}
             />
             <datalist id="destination-list-1">${createDestinationOptions(allDestination)}</datalist>
@@ -176,7 +176,7 @@ function createTripFormTemplate(state) {
           </div>
 
           <button class="event__save-btn  btn  btn--blue" type="submit" ${disabledAttr}>${saveText}</button>
-          <button class="event__reset-btn" type="button" ${disabledAttr}>${resetText}</button>
+          <button class="event__reset-btn" type="button" ${resetButtonDisabledAttr}>${resetText}</button>
           ${rollupButton}
         </header>
         ${createDetailsBlock(pointDestination, allOffers, selectedOfferIds, isDisabled)}
@@ -280,6 +280,10 @@ export default class TripFormView extends AbstractStatefulView {
       }
     }
 
+    const destinationInputElement = this.element.querySelector('.event__input--destination');
+    destinationInputElement.addEventListener('input', this.#destinationChangeHandler);
+    destinationInputElement.addEventListener('change', this.#destinationChangeHandler);
+
     this.#setDatepickers();
   }
 
@@ -297,7 +301,6 @@ export default class TripFormView extends AbstractStatefulView {
     const destination = this._state.allDestination.find((d) => d.name === name);
 
     if (!destination) {
-      evt.target.value = '';
       this._setState({
         point: { ...this._state.point, destination: null },
         pointDestination: null,
@@ -332,16 +335,6 @@ export default class TripFormView extends AbstractStatefulView {
     evt.preventDefault();
 
     if (this._state.isDisabled || this._state.isSaving || this._state.isDeleting) {
-      return;
-    }
-
-    if (!this._state.point.destination) {
-      this.shake();
-      return;
-    }
-
-    if (new Date(this._state.point.dateFrom) >= new Date(this._state.point.dateTo)) {
-      this.shake();
       return;
     }
 
@@ -436,13 +429,16 @@ export default class TripFormView extends AbstractStatefulView {
 
   shake(callback) {
     this.element.classList.add('shake');
-    this.element.addEventListener(
-      'animationend',
-      () => {
-        this.element.classList.remove('shake');
-        callback?.();
-      },
-      { once: true },
-    );
+    let isReset = false;
+    const resetShake = () => {
+      if (isReset) {
+        return;
+      }
+      isReset = true;
+      this.element.classList.remove('shake');
+      callback?.();
+    };
+    this.element.addEventListener('animationend', resetShake, { once: true });
+    setTimeout(resetShake, 350);
   }
 }

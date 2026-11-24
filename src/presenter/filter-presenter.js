@@ -54,11 +54,14 @@ export default class FilterPresenter {
     if (updateType === UpdateType.PATCH) {
       return;
     }
+
     const availability = getFilterAvailability(this.#pointsModel.points);
-    if (!availability[this.#filterModel.filter] && this.#filterModel.filter !== FilterType.EVERYTHING) {
+
+    if (!availability[this.#filterModel.filter] && availability[FilterType.EVERYTHING] && this.#filterModel.filter !== FilterType.EVERYTHING) {
       this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
       return;
     }
+
     this.init();
   };
 

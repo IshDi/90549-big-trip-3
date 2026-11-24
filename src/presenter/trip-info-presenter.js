@@ -1,4 +1,4 @@
-import { render, replace, RenderPosition } from '../framework/render.js';
+import { render, replace, remove, RenderPosition } from '../framework/render.js';
 import TripInfoView from '../view/trip-info-view.js';
 import { getTripRoute, getTripDates, getTripTotalCost } from '../util.js';
 import { UpdateType } from '../consts.js';
@@ -32,6 +32,14 @@ export default class TripInfoPresenter {
 
   #renderTripInfo() {
     const points = this.#pointsModel.points;
+
+    if (points.length === 0) {
+      if (this.#tripInfoComponent) {
+        remove(this.#tripInfoComponent);
+        this.#tripInfoComponent = null;
+      }
+      return;
+    }
 
     const data = {
       route: getTripRoute(points, this.#destinationsModel),

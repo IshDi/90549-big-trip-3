@@ -57,10 +57,12 @@ filterPresenter.init();
 tripInfoPresenter.init();
 
 Promise.all([pointsModel.init(), destinationsModel.init(), offersModel.init()]).finally(() => {
-  pointsModel.notifyInit();
-  if (newEventButtonElement) {
-    newEventButtonElement.disabled = false;
-  }
+  setTimeout(() => {
+    pointsModel.notifyInit();
+    if (newEventButtonElement) {
+      newEventButtonElement.disabled = false;
+    }
+  }, 100);
 });
 
 if (newEventButtonElement) {

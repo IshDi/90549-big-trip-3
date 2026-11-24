@@ -76,7 +76,7 @@ const getTripTotalCost = (points, offersModel) =>
 const getFilterAvailability = (points) => {
   const result = {};
   Object.values(FilterType).forEach((filterType) => {
-    result[filterType] = filterType === FilterType.EVERYTHING ? true : FilterPoints[filterType](points).length > 0;
+    result[filterType] = FilterPoints[filterType](points).length > 0;
   });
   return result;
 };
