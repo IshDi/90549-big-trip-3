@@ -5,12 +5,7 @@ import TripListView from '../view/trip-list-view.js';
 import MessageView from '../view/message-view.js';
 import TripFormView from '../view/trip-form-view.js';
 import PointPresenter from './point-presenter.js';
-import { SortType, FilterPoints, FilterType, UpdateType, UserAction, NoPointsText, Messages } from '../consts.js';
-
-const TimeLimit = {
-  LOWER_LIMIT: 350,
-  UPPER_LIMIT: 1000,
-};
+import { SortType, FilterPoints, FilterType, UpdateType, UserAction, NoPointsText, Messages, DEFAULT_POINT_TYPE, TimeLimit } from '../consts.js';
 export default class TripPresenter {
   #tripListComponent = new TripListView();
   #sortComponent = null;
@@ -18,22 +13,24 @@ export default class TripPresenter {
   #loadingComponent = new MessageView({ text: Messages.LOAD });
   #failedComponent = null;
   #newPointComponent = null;
-  #tripContainet = null;
+  #tripContainer = null;
   #pointsModel = null;
   #destinationsModel = null;
   #offersModel = null;
   #filterModel = null;
+  #newEventButtonElement = null;
   #currentSortType = SortType.DAY.type;
   #eventListPoints = [];
   #pointPresenters = new Map();
   #isLoading = true;
 
-  constructor({ tripContainet, pointsModel, destinationsModel, offersModel, filterModel }) {
-    this.#tripContainet = tripContainet;
+  constructor({ tripContainer, pointsModel, destinationsModel, offersModel, filterModel, newEventButtonElement }) {
+    this.#tripContainer = tripContainer;
     this.#pointsModel = pointsModel;
     this.#destinationsModel = destinationsModel;
     this.#offersModel = offersModel;
     this.#filterModel = filterModel;
+    this.#newEventButtonElement = newEventButtonElement;
 
     this.#pointsModel.addObserver(this.#handleModelChange);
     this.#filterModel.addObserver(this.#handleModelChange);
@@ -80,7 +77,7 @@ export default class TripPresenter {
           this.#failedComponent = new MessageView({
             text: Messages.FAILED,
           });
-          render(this.#failedComponent, this.#tripContainet);
+          render(this.#failedComponent, this.#tripContainer);
         } else {
           this.#renderTripEvents();
         }
@@ -90,7 +87,7 @@ export default class TripPresenter {
 
   #renderTripEvents() {
     if (this.#isLoading) {
-      render(this.#loadingComponent, this.#tripContainet);
+      render(this.#loadingComponent, this.#tripContainer);
       return;
     }
     this.#eventListPoints = [...this.points];
@@ -98,7 +95,7 @@ export default class TripPresenter {
       this.#noPointsComponent = new MessageView({
         text: NoPointsText[this.#filterModel.filter],
       });
-      render(this.#noPointsComponent, this.#tripContainet);
+      render(this.#noPointsComponent, this.#tripContainer);
       return;
     }
 
@@ -138,7 +135,7 @@ export default class TripPresenter {
       isEdit: false,
       point: {
         id: crypto.randomUUID(),
-        type: 'flight',
+        type: DEFAULT_POINT_TYPE,
         destination: null,
         dateFrom: null,
         dateTo: null,
@@ -146,7 +143,7 @@ export default class TripPresenter {
         offers: [],
         isFavorite: false,
       },
-      allOffers: this.#offersModel.getByType('flight'),
+      allOffers: this.#offersModel.getByType(DEFAULT_POINT_TYPE),
       pointDestination: null,
       allDestination: this.#destinationsModel.destinations,
       onFormSubmit: (newPoint) => {
@@ -158,7 +155,7 @@ export default class TripPresenter {
 
     document.addEventListener('keydown', this.#handleNewPointEsc);
 
-    const container = this.#eventListPoints.length > 0 ? this.#tripListComponent.element : this.#tripContainet;
+    const container = this.#eventListPoints.length > 0 ? this.#tripListComponent.element : this.#tripContainer;
     render(this.#newPointComponent, container, RenderPosition.AFTERBEGIN);
 
     const button = document.querySelector('.trip-main__event-add-btn');
@@ -206,6 +203,9 @@ export default class TripPresenter {
           isDisabled: true,
           isSaving: true,
         });
+        if (this.#newEventButtonElement) {
+          this.#newEventButtonElement.disabled = true;
+        }
         try {
           await this.#pointsModel.addPoint(updateType, update);
           this.#destroyNewPointForm();
@@ -255,11 +255,11 @@ export default class TripPresenter {
       currentType: this.#currentSortType,
     });
 
-    render(this.#sortComponent, this.#tripContainet);
+    render(this.#sortComponent, this.#tripContainer);
   }
 
   #renderPointList() {
-    render(this.#tripListComponent, this.#tripContainet);
+    render(this.#tripListComponent, this.#tripContainer);
   }
 
   #renderPoint(eventPoint) {
@@ -277,9 +277,7 @@ export default class TripPresenter {
   }
 
   #renderPoints() {
-    for (const eventPoint of this.#eventListPoints) {
-      this.#renderPoint(eventPoint);
-    }
+    this.#eventListPoints.forEach((eventPoint) => this.#renderPoint(eventPoint));
   }
 
   #handleSortTypeChange = (sortType) => {

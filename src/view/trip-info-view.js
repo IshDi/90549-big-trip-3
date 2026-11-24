@@ -1,4 +1,4 @@
-import AbstractStatefulView from '../framework/view/abstract-view.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
 function createTripInfoTemplate({ route, dates, totalCost }) {
   return (
@@ -13,13 +13,15 @@ function createTripInfoTemplate({ route, dates, totalCost }) {
   );
 }
 
-export default class TripInfoView extends AbstractStatefulView {
-  constructor({ route = '', dates = '', totalCost = 0 }) {
+export default class TripInfoView extends AbstractView {
+  #data = {};
+
+  constructor(data) {
     super();
-    this._state = { route, dates, totalCost };
+    this.#data = data;
   }
 
   get template() {
-    return createTripInfoTemplate(this._state);
+    return createTripInfoTemplate(this.#data);
   }
 }

@@ -1,17 +1,12 @@
 import dayjs from 'dayjs';
-import { FilterType, FilterPoints } from './consts.js';
-
-const getRandomArrayElement = (items) => items[Math.floor(Math.random() * items.length)];
+import { FilterType, FilterPoints, DateFormat } from './consts.js';
 
 const capitalize = (type) => type.charAt(0).toUpperCase() + type.slice(1);
 
-const formatDateTime = (isoString) => (isoString ? dayjs(isoString).format('DD/MM/YY HH:mm') : '');
-
-const formatTime = (isoString) => (isoString ? dayjs(isoString).format('HH:mm') : '');
-
-const formatDate = (isoString) => (isoString ? dayjs(isoString).format('MMM DD').toUpperCase() : '');
-
-const formatDateValue = (isoString) => (isoString ? dayjs(isoString).format('YYYY-MM-DD') : '');
+const formatDateTime = (isoString) => (isoString ? dayjs(isoString).format(DateFormat.DATE_TIME) : '');
+const formatTime = (isoString) => (isoString ? dayjs(isoString).format(DateFormat.TIME) : '');
+const formatDate = (isoString) => (isoString ? dayjs(isoString).format(DateFormat.DATE).toUpperCase() : '');
+const formatDateValue = (isoString) => (isoString ? dayjs(isoString).format(DateFormat.DATE_VALUE) : '');
 
 const formatDuration = (dateFrom, dateTo) => {
   if (!dateFrom || !dateTo) {
@@ -36,19 +31,15 @@ const formatDuration = (dateFrom, dateTo) => {
   return parts.join(' ');
 };
 
-const formatTripDate = (isoString) => {
-  if (!isoString) {
-    return '';
-  }
-  return dayjs(isoString).format('D MMM').toUpperCase();
-};
+const formatTripDate = (isoString) => (isoString ? dayjs(isoString).format(DateFormat.TRIP_DATE).toUpperCase() : '');
 
 const getTripRoute = (points, destinationsModel) => {
+  const validPoints = points.filter((point) => point.dateFrom && point.dateTo);
   if (!points.length) {
     return '';
   }
 
-  const sorted = [...points].sort((a, b) => new Date(a.dateFrom) - new Date(b.dateFrom));
+  const sorted = [...validPoints].sort((a, b) => new Date(a.dateFrom) - new Date(b.dateFrom));
   const cityNames = sorted.map((point) => destinationsModel.getById(point.destination)?.name).filter(Boolean);
 
   if (cityNames.length === 0) {
@@ -63,11 +54,12 @@ const getTripRoute = (points, destinationsModel) => {
 };
 
 const getTripDates = (points) => {
+  const validPoints = points.filter((point) => point.dateFrom && point.dateTo);
   if (!points.length) {
     return '';
   }
 
-  const sorted = [...points].sort((a, b) => new Date(a.dateFrom) - new Date(b.dateFrom));
+  const sorted = [...validPoints].sort((a, b) => new Date(a.dateFrom) - new Date(b.dateFrom));
   const startDate = sorted[0].dateFrom;
   const endDate = sorted.reduce((max, point) => (new Date(point.dateTo) > new Date(max) ? point.dateTo : max), sorted[0].dateTo);
 
@@ -83,26 +75,10 @@ const getTripTotalCost = (points, offersModel) =>
 
 const getFilterAvailability = (points) => {
   const result = {};
-  for (const filterType of Object.values(FilterType)) {
-    if (filterType === FilterType.EVERYTHING) {
-      result[filterType] = true;
-    } else {
-      result[filterType] = FilterPoints[filterType](points).length > 0;
-    }
-  }
+  Object.values(FilterType).forEach((filterType) => {
+    result[filterType] = filterType === FilterType.EVERYTHING ? true : FilterPoints[filterType](points).length > 0;
+  });
   return result;
 };
 
-export {
-  getRandomArrayElement,
-  capitalize,
-  formatDateTime,
-  formatTime,
-  formatDate,
-  formatDateValue,
-  formatDuration,
-  getTripRoute,
-  getTripDates,
-  getTripTotalCost,
-  getFilterAvailability,
-};
+export { capitalize, formatDateTime, formatTime, formatDate, formatDateValue, formatDuration, getTripRoute, getTripDates, getTripTotalCost, getFilterAvailability };

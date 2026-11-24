@@ -1,8 +1,10 @@
 import he from 'he';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { capitalize, formatDateTime } from '../util.js';
-import { TYPES } from '../consts.js';
+import { TYPES, ButtonText, DateFormat } from '../consts.js';
 import flatpickr from 'flatpickr';
+
+const { SAVE, SAVING, DELETE, DELETING, CANCEL } = ButtonText;
 
 function createTypeItems(type, isDisabled = false) {
   return TYPES.map(
@@ -52,7 +54,7 @@ function createDestinationBlock(pointDestination) {
     </section>`;
 }
 
-function createOffer(allOffers, selectedOfferIds, isDisabled = false) {
+function createOffers(allOffers, selectedOfferIds, isDisabled = false) {
   return allOffers
     .map(
       (offer) =>
@@ -85,7 +87,7 @@ function createOffersBlock(allOffers, selectedOfferIds, isDisabled = false) {
   return `<section class="event__section  event__section--offers">
     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
       <div class="event__available-offers">
-       ${createOffer(allOffers, selectedOfferIds, isDisabled)}
+       ${createOffers(allOffers, selectedOfferIds, isDisabled)}
       </div>
     </section>`;
 }
@@ -105,12 +107,12 @@ function createTripFormTemplate(state) {
   const { isEdit, point, allOffers, pointDestination, allDestination, isSaving, isDeleting, isDisabled } = state;
   const { type, basePrice, dateFrom, dateTo, offers: selectedOfferIds } = point;
 
-  const saveText = isSaving ? 'Saving...' : 'Save';
+  const saveText = isSaving ? SAVING : SAVE;
 
-  let resetText = 'Cancel';
+  let resetText = CANCEL;
 
   if (isEdit) {
-    resetText = isDeleting ? 'Deleting...' : 'Delete';
+    resetText = isDeleting ? DELETING : DELETE;
   }
 
   const rollupButton = isEdit
@@ -323,12 +325,7 @@ export default class TripFormView extends AbstractStatefulView {
   #priceChangeHandler = (evt) => {
     const value = evt.target.value.replace(/\D/g, '');
     evt.target.value = value;
-
-    const price = Number(value);
-    if (Number.isNaN(price)) {
-      return;
-    }
-    this._setState({ point: { ...this._state.point, basePrice: price } });
+    this._setState({ point: { ...this._state.point, basePrice: Number(value) } });
   };
 
   #formSubmitHandler = (evt) => {
@@ -371,7 +368,7 @@ export default class TripFormView extends AbstractStatefulView {
     const endDate = safeDate(this._state.point.dateTo);
 
     this.#startDatepicker = flatpickr(startInput, {
-      dateFormat: 'd/m/y H:i',
+      dateFormat: DateFormat.PICKER,
       defaultDate: startDate,
       enableTime: true,
       onChange: this.#startDateChangeHandler,

@@ -23,7 +23,7 @@ const apiService = new BigTripApiService(END_POINT, AUTHORIZATION);
 const siteTripMainElement = document.querySelector('.trip-main');
 const siteTripFilterElement = document.querySelector('.trip-controls__filters');
 const siteTripEventsElement = document.querySelector('.trip-events');
-const newEventButton = document.querySelector('.trip-main__event-add-btn');
+const newEventButtonElement = document.querySelector('.trip-main__event-add-btn');
 
 const pointsModel = new PointsModel({ pointsApiService: apiService });
 const destinationsModel = new DestinationsModel({ apiService });
@@ -38,11 +38,12 @@ const tripInfoPresenter = new TripInfoPresenter({
 });
 
 const tripPresenter = new TripPresenter({
-  tripContainet: siteTripEventsElement,
+  tripContainer: siteTripEventsElement,
   pointsModel,
   destinationsModel,
   offersModel,
   filterModel,
+  newEventButtonElement,
 });
 
 const filterPresenter = new FilterPresenter({
@@ -57,11 +58,11 @@ tripInfoPresenter.init();
 
 Promise.all([pointsModel.init(), destinationsModel.init(), offersModel.init()]).finally(() => {
   pointsModel.notifyInit();
-  if (newEventButton) {
-    newEventButton.disabled = false;
+  if (newEventButtonElement) {
+    newEventButtonElement.disabled = false;
   }
 });
 
-if (newEventButton) {
-  newEventButton.addEventListener('click', tripPresenter.handleNewPointClick);
+if (newEventButtonElement) {
+  newEventButtonElement.addEventListener('click', tripPresenter.handleNewPointClick);
 }
