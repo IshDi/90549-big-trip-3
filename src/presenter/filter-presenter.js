@@ -55,13 +55,6 @@ export default class FilterPresenter {
       return;
     }
 
-    const availability = getFilterAvailability(this.#pointsModel.points);
-
-    if (!availability[this.#filterModel.filter] && availability[FilterType.EVERYTHING] && this.#filterModel.filter !== FilterType.EVERYTHING) {
-      this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
-      return;
-    }
-
     this.init();
   };
 

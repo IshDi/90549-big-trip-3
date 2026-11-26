@@ -138,11 +138,9 @@ export default class TripPresenter {
       this.#noPointsComponent = null;
     }
 
-    if (this.#filterModel.filter !== FilterType.EVERYTHING) {
-      this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
-    }
-
     this.#currentSortType = SortType.DAY.type;
+    this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+
     this.#resetAllViews();
 
     if (this.#newPointComponent) {
@@ -184,6 +182,9 @@ export default class TripPresenter {
   #handleNewPointEsc = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
+      if (this.#newPointComponent?.isSaving) {
+        return;
+      }
       this.#destroyNewPointForm();
     }
   };
