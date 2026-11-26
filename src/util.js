@@ -61,7 +61,7 @@ const getTripDates = (points) => {
 
   const sorted = [...validPoints].sort((a, b) => new Date(a.dateFrom) - new Date(b.dateFrom));
   const startDate = sorted[0].dateFrom;
-  const endDate = validPoints.reduce((max, point) => (new Date(point.dateTo) > new Date(max) ? point.dateTo : max), validPoints[0].dateTo);
+  const endDate = sorted[sorted.length - 1].dateTo;
 
   return `${formatTripDate(startDate)} — ${formatTripDate(endDate)}`;
 };
