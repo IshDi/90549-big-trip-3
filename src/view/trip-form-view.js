@@ -43,14 +43,24 @@ function createPictures(pictures) {
 }
 
 function createDestinationBlock(pointDestination) {
-  if (!pointDestination?.description) {
+  if (!pointDestination) {
     return '';
   }
 
+  const hasDescription = Boolean(pointDestination.description);
+  const hasPictures = Array.isArray(pointDestination.pictures) && pointDestination.pictures.length > 0;
+
+  if (!hasDescription && !hasPictures) {
+    return '';
+  }
+
+  const descriptionElement = hasDescription ? `<p class="event__destination-description">${he.encode(pointDestination.description)}</p>` : '';
+  const picturesElement = hasPictures ? createPictures(pointDestination.pictures) : '';
+
   return `<section class="event__section  event__section--destination">
       <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-      <p class="event__destination-description">${he.encode(pointDestination.description)}</p>
-      ${createPictures(pointDestination.pictures)}
+      ${descriptionElement}
+      ${picturesElement}
     </section>`;
 }
 
