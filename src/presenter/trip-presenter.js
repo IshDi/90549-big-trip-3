@@ -182,6 +182,9 @@ export default class TripPresenter {
   #handleNewPointEsc = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
+      if (this.#newPointComponent?.isSaving) {
+        return;
+      }
       this.#destroyNewPointForm();
     }
   };

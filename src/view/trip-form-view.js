@@ -226,6 +226,10 @@ export default class TripFormView extends AbstractStatefulView {
     return this.element.querySelector('.event__rollup-btn');
   }
 
+  get isSaving() {
+    return this._state.isSaving || this._state.isDeleting;
+  }
+
   updateElement(update) {
     if (this.#startDatepicker) {
       this.#startDatepicker.destroy();
@@ -343,6 +347,9 @@ export default class TripFormView extends AbstractStatefulView {
 
   #rollupClickHandler = (evt) => {
     evt.preventDefault();
+    if (this.isSaving) {
+      return;
+    }
     this.#onRollupClick?.();
   };
 
@@ -424,6 +431,9 @@ export default class TripFormView extends AbstractStatefulView {
 
   #cancelClickHandler = (evt) => {
     evt.preventDefault();
+    if (this.isSaving) {
+      return;
+    }
     this.#onRollupClick?.();
   };
 

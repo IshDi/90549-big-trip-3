@@ -112,6 +112,9 @@ export default class PointPresenter {
   #onEscKeyDown = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
+      if (this.#formComponent?.isSaving) {
+        return;
+      }
       this.#replaceFormToPoint();
     }
   };
