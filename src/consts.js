@@ -121,6 +121,8 @@ const Method = {
 const DEFAULT_POINT_TYPE = 'flight';
 const MIN_TRIP_CITIES = 3;
 const COST_ZERO = 0;
+const HOURS_IN_DAY = 24;
+const MINUTES_IN_HOUR = 60;
 
 export {
   TYPES,
@@ -140,4 +142,6 @@ export {
   DEFAULT_POINT_TYPE,
   MIN_TRIP_CITIES,
   COST_ZERO,
+  HOURS_IN_DAY,
+  MINUTES_IN_HOUR,
 };

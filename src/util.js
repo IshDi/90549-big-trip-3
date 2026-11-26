@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { FilterType, FilterPoints, DateFormat } from './consts.js';
+import { FilterType, FilterPoints, DateFormat, MIN_TRIP_CITIES, COST_ZERO, HOURS_IN_DAY, MINUTES_IN_HOUR } from './consts.js';
 
 const capitalize = (type) => type.charAt(0).toUpperCase() + type.slice(1);
 
@@ -14,16 +14,16 @@ const formatDuration = (dateFrom, dateTo) => {
   }
   const diffMinutes = dayjs(dateTo).diff(dayjs(dateFrom), 'minute');
 
-  const days = Math.floor(diffMinutes / (60 * 24));
-  const hours = Math.floor((diffMinutes % (60 * 24)) / 60);
-  const minutes = diffMinutes % 60;
+  const days = Math.floor(diffMinutes / (MINUTES_IN_HOUR * HOURS_IN_DAY));
+  const hours = Math.floor((diffMinutes % (MINUTES_IN_HOUR * HOURS_IN_DAY)) / MINUTES_IN_HOUR);
+  const minutes = diffMinutes % MINUTES_IN_HOUR;
 
   const parts = [];
 
-  if (days > 0) {
+  if (days > COST_ZERO) {
     parts.push(`${String(days).padStart(2, '0')}D`);
   }
-  if (hours > 0 || days > 0) {
+  if (hours > COST_ZERO || days > COST_ZERO) {
     parts.push(`${String(hours).padStart(2, '0')}H`);
   }
   parts.push(`${String(minutes).padStart(2, '0')}M`);
@@ -42,11 +42,11 @@ const getTripRoute = (points, destinationsModel) => {
   const sorted = [...validPoints].sort((a, b) => new Date(a.dateFrom) - new Date(b.dateFrom));
   const cityNames = sorted.map((point) => destinationsModel.getById(point.destination)?.name).filter(Boolean);
 
-  if (cityNames.length === 0) {
+  if (cityNames.length === COST_ZERO) {
     return '';
   }
 
-  if (cityNames.length <= 3) {
+  if (cityNames.length <= MIN_TRIP_CITIES) {
     return cityNames.join(' — ');
   }
 
