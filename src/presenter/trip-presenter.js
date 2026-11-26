@@ -138,11 +138,9 @@ export default class TripPresenter {
       this.#noPointsComponent = null;
     }
 
-    if (this.#filterModel.filter !== FilterType.EVERYTHING) {
-      this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
-    }
-
     this.#currentSortType = SortType.DAY.type;
+    this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+
     this.#resetAllViews();
 
     if (this.#newPointComponent) {
