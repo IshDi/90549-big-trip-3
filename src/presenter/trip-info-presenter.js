@@ -47,14 +47,14 @@ export default class TripInfoPresenter {
       totalCost: getTripTotalCost(points, this.#offersModel),
     };
 
-    const prevComponent = this.#tripInfoComponent;
+    const previousComponent = this.#tripInfoComponent;
     this.#tripInfoComponent = new TripInfoView(data);
 
-    if (prevComponent === null) {
+    if (previousComponent === null) {
       render(this.#tripInfoComponent, this.#tripInfoContainer, RenderPosition.AFTERBEGIN);
       return;
     }
 
-    replace(this.#tripInfoComponent, prevComponent);
+    replace(this.#tripInfoComponent, previousComponent);
   }
 }
