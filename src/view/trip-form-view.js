@@ -342,6 +342,18 @@ export default class TripFormView extends AbstractStatefulView {
       return;
     }
 
+    const { dateFrom, dateTo } = this._state.point;
+
+    if (!dateFrom || !dateTo) {
+      this.shake();
+      return;
+    }
+
+    if (new Date(dateFrom) >= new Date(dateTo)) {
+      this.shake();
+      return;
+    }
+
     this.#onFormSubmit?.(this._state.point);
   };
 
@@ -391,20 +403,26 @@ export default class TripFormView extends AbstractStatefulView {
       return;
     }
 
+    const newDateFrom = userDate.toISOString();
+    const currentDateTo = this._state.point.dateTo;
+
+    if (currentDateTo && new Date(currentDateTo) < userDate) {
+      this._setState({
+        point: { ...this._state.point, dateFrom: newDateFrom, dateTo: null },
+      });
+      if (this.#endDatepicker) {
+        this.#endDatepicker.set('minDate', userDate);
+        this.#endDatepicker.clear();
+      }
+      return;
+    }
+
     this._setState({
-      point: { ...this._state.point, dateFrom: userDate.toISOString() },
+      point: { ...this._state.point, dateFrom: newDateFrom },
     });
 
     if (this.#endDatepicker) {
       this.#endDatepicker.set('minDate', userDate);
-
-      const endDate = this.#endDatepicker.selectedDates[0];
-      if (endDate && endDate < userDate) {
-        this.#endDatepicker.clear();
-        this._setState({
-          point: { ...this._state.point, dateTo: null },
-        });
-      }
     }
   };
 
