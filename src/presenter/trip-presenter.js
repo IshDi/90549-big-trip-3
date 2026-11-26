@@ -24,6 +24,7 @@ export default class TripPresenter {
   #pointPresenters = new Map();
   #isLoading = true;
   #hasEverRendered = false;
+  #isCreatingPoint = false;
 
   constructor({ tripContainer, pointsModel, destinationsModel, offersModel, filterModel, newEventButtonElement }) {
     this.#tripContainer = tripContainer;
@@ -99,7 +100,7 @@ export default class TripPresenter {
     this.#eventListPoints = [...this.points];
 
     if (this.#eventListPoints.length === 0) {
-      if (this.#newPointComponent) {
+      if (this.#newPointComponent || this.#isCreatingPoint) {
         return;
       }
 
@@ -139,7 +140,10 @@ export default class TripPresenter {
     }
 
     this.#currentSortType = SortType.DAY.type;
+
+    this.#isCreatingPoint = true;
     this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+    this.#isCreatingPoint = false;
 
     this.#resetAllViews();
 
