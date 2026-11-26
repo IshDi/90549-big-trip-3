@@ -342,7 +342,12 @@ export default class TripFormView extends AbstractStatefulView {
       return;
     }
 
-    const { dateFrom, dateTo } = this._state.point;
+    const { destination, dateFrom, dateTo, basePrice } = this._state.point;
+
+    if (!destination) {
+      this.shake();
+      return;
+    }
 
     if (!dateFrom || !dateTo) {
       this.shake();
@@ -350,6 +355,11 @@ export default class TripFormView extends AbstractStatefulView {
     }
 
     if (new Date(dateFrom) >= new Date(dateTo)) {
+      this.shake();
+      return;
+    }
+
+    if (!Number.isFinite(basePrice) || basePrice < 1) {
       this.shake();
       return;
     }
