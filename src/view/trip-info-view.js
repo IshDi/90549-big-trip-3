@@ -1,3 +1,4 @@
+import he from 'he';
 import AbstractView from '../framework/view/abstract-view.js';
 
 function createTripInfoTemplate({ route, dates, totalCost }) {
@@ -5,8 +6,8 @@ function createTripInfoTemplate({ route, dates, totalCost }) {
     /* HTML */
     `<section class="trip-main__trip-info  trip-info">
       <div class="trip-info__main">
-        <h1 class="trip-info__title">${route || ''}</h1>
-        <p class="trip-info__dates">${dates || ''}</p>
+        <h1 class="trip-info__title">${he.encode(route || '')}</h1>
+        <p class="trip-info__dates">${he.encode(dates || '')}</p>
       </div>
       <p class="trip-info__cost">Total: &euro;&nbsp;<span class="trip-info__cost-value">${totalCost || 0}</span></p>
     </section>`

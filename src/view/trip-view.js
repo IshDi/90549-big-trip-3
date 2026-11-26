@@ -13,7 +13,7 @@ function createTripTemplate({ point, offers, destination }) {
     .map(
       (offer) =>
         `<li class="event__offer">
-            <span class="event__offer-title">${offer.title}</span>
+            <span class="event__offer-title">${he.encode(offer.title)}</span>
             &plus;&euro;&nbsp;
             <span class="event__offer-price">${offer.price}</span>
           </li>`,
